@@ -1,7 +1,9 @@
 <?php
-$con=mysqli_connect("Localhost", "root", "", "italalu");
-if(mysqli_connect_errno()){
-echo "Connection Fail".mysqli_connect_error();
-}
+$con = mysqli_connect("mysql.hostinger.com", "u553063725_italalu", "Daoudacherif4321", "u553063725_italalu");
 
-  ?>
+if (!$con) {
+    die("Connection failed: " . mysqli_connect_error());
+} else {
+    echo "Connected successfully"; // Remove this after testing
+}
+?>
