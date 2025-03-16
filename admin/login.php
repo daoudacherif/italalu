@@ -1,16 +1,8 @@
 <?php
-<<<<<<< HEAD
 session_start();
 error_reporting(0);
 include('includes/dbconnection.php');
 
-=======
-
-session_start();
-error_reporting(0);
-include('includes/dbconnection.php');
-
->>>>>>> 2fa1a665205de4d55591ec5f88ac902ac1e369d9
 if(isset($_POST['login']))
   {
     $adminuser=$_POST['username'];
@@ -54,7 +46,6 @@ echo "<script>alert('Password successfully changed');</script>";
   ?>
 <!DOCTYPE html>
 <html lang="en">
-<<<<<<< HEAD
     
 <head>
         <title>Inventory Management System|| Login Page</title><meta charset="UTF-8" />
@@ -77,8 +68,6 @@ return true;
 } 
 
 </script>
-=======
->>>>>>> 2fa1a665205de4d55591ec5f88ac902ac1e369d9
     </head>
     <body>
         <div id="loginbox">            
