@@ -1,0 +1,76 @@
+<?php
+session_start();
+error_reporting(0);
+include('includes/dbconnection.php');
+
+if (strlen($_SESSION['imsaid'] == 0)) {
+  header('location:logout.php');
+  exit;
+}
+
+// Récupère le nom/téléphone passés en GET
+$customerName = mysqli_real_escape_string($con, $_GET['name']);
+$mobile       = mysqli_real_escape_string($con, $_GET['mobile']);
+
+// Requête : toutes les factures de ce client
+$sql = "
+  SELECT ID, BillingNumber, BillingDate, FinalAmount, Paid, Dues
+  FROM tblcustomer
+  WHERE CustomerName='$customerName' AND MobileNumber='$mobile'
+  ORDER BY BillingDate DESC
+";
+$res = mysqli_query($con, $sql);
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <title>Détails du Compte Client</title>
+  <?php include_once('includes/cs.php'); ?>
+</head>
+<body>
+<?php include_once('includes/header.php'); ?>
+<?php include_once('includes/sidebar.php'); ?>
+
+<div id="content">
+  <div id="content-header">
+    <h1>Détails pour <?php echo htmlspecialchars($customerName); ?> (<?php echo htmlspecialchars($mobile); ?>)</h1>
+  </div>
+  <div class="container-fluid">
+    <hr>
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Numéro de Facture</th>
+          <th>Date</th>
+          <th>Montant Final</th>
+          <th>Payé</th>
+          <th>Reste</th>
+        </tr>
+      </thead>
+      <tbody>
+      <?php
+      $cnt=1;
+      while ($row = mysqli_fetch_assoc($res)) {
+        ?>
+        <tr>
+          <td><?php echo $cnt++; ?></td>
+          <td><?php echo $row['BillingNumber']; ?></td>
+          <td><?php echo $row['BillingDate']; ?></td>
+          <td><?php echo number_format($row['FinalAmount'],2); ?></td>
+          <td><?php echo number_format($row['Paid'],2); ?></td>
+          <td><?php echo number_format($row['Dues'],2); ?></td>
+        </tr>
+        <?php
+      }
+      ?>
+      </tbody>
+    </table>
+  </div><!-- container-fluid -->
+</div><!-- content -->
+
+<?php include_once('includes/footer.php'); ?>
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+</body>
+</html>
