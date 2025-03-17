@@ -10,23 +10,33 @@ if (strlen($_SESSION['imsaid'] == 0)) {
 }
 
 // ==========================
-// 1) Action "Solder le compte" (exemple)
+// 1) Action "Payer un montant" (manuellement)
 // ==========================
-if (isset($_POST['solderCompte'])) {
+if (isset($_POST['payerCompte'])) {
   $customerName = mysqli_real_escape_string($con, $_POST['custname']);
   $mobileNumber = mysqli_real_escape_string($con, $_POST['custmobile']);
+  $montant      = floatval($_POST['montant']); // montant saisi
 
-  $sqlSolder = "
-    UPDATE tblcustomer
-    SET Paid = FinalAmount, Dues = 0
-    WHERE CustomerName = '$customerName'
-      AND MobileNumber = '$mobileNumber'
-  ";
-  $resSolder = mysqli_query($con, $sqlSolder);
-  if ($resSolder) {
-    echo "<script>alert('Le compte du client a été soldé.');</script>";
+  if ($montant <= 0) {
+    echo "<script>alert('Montant invalide');</script>";
   } else {
-    echo "<script>alert('Erreur lors du solder du compte.');</script>";
+    // Mettre à jour toutes les factures de ce client :
+    // Paid = Paid + montant, Dues = Dues - montant, sans descendre sous 0
+    // On peut faire un "UPDATE ... SET Paid=Paid + X, Dues=GREATEST(Dues - X, 0)"
+    $sqlPay = "
+      UPDATE tblcustomer
+      SET 
+        Paid = Paid + $montant,
+        Dues = GREATEST(Dues - $montant, 0)
+      WHERE CustomerName = '$customerName'
+        AND MobileNumber = '$mobileNumber'
+    ";
+    $resPay = mysqli_query($con, $sqlPay);
+    if ($resPay) {
+      echo "<script>alert('Paiement de $montant € enregistré !');</script>";
+    } else {
+      echo "<script>alert('Erreur lors du paiement.');</script>";
+    }
   }
   echo "<script>window.location.href='client-account.php'</script>";
   exit;
@@ -72,7 +82,7 @@ $res = mysqli_query($con, $sql);
 
 <div id="content">
   <div id="content-header">
-    <h1>Compte Client</h1>
+    <h1>Compte Client (Paiement Manuel)</h1>
   </div>
   <div class="container-fluid">
     <hr>
@@ -131,13 +141,17 @@ $res = mysqli_query($con, $sql);
             <a href="client-account-details.php?name=<?php echo urlencode($customerName); ?>&mobile=<?php echo urlencode($mobile); ?>"
                class="btn btn-info btn-small">Détails</a>
 
-            <!-- Bouton "Solder" si le client a un due > 0 -->
+            <!-- Formulaire "Payer un montant" si le client a un due > 0 -->
             <?php if ($due > 0) { ?>
               <form method="post" style="display:inline;">
                 <input type="hidden" name="custname" value="<?php echo htmlspecialchars($customerName); ?>" />
                 <input type="hidden" name="custmobile" value="<?php echo htmlspecialchars($mobile); ?>" />
-                <button type="submit" name="solderCompte" class="btn btn-success btn-small">
-                  Solder
+
+                <!-- Champ pour saisir le montant manuellement -->
+                <input type="number" name="montant" step="any" placeholder="Montant" style="width:80px;" />
+
+                <button type="submit" name="payerCompte" class="btn btn-success btn-small">
+                  Payer
                 </button>
               </form>
             <?php } else { ?>
