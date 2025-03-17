@@ -218,7 +218,7 @@ $res = mysqli_query($con, $sql);
             </form>
 
             <!-- Lien pour voir le détail (facultatif) -->
-            <a href="client-account-detail.php?name=<?php echo urlencode($cName); ?>&mobile=<?php echo urlencode($cMobile); ?>"
+            <a href="client-account-details.php?name=<?php echo urlencode($cName); ?>&mobile=<?php echo urlencode($cMobile); ?>"
                class="btn btn-success btn-mini">
                Détails
             </a>
