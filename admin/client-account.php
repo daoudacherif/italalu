@@ -13,7 +13,7 @@ if (strlen($_SESSION['imsaid'] == 0)) {
 // 1) Gérer l'ajout d'un paiement
 // ============================
 if (isset($_POST['addPayment'])) {
-    $custname = mysqli_real_escape_string($con, $_POST['custname']);
+    $custname   = mysqli_real_escape_string($con, $_POST['custname']);
     $custmobile = mysqli_real_escape_string($con, $_POST['custmobile']);
     $amountPaid = floatval($_POST['amount']);
     $comments   = mysqli_real_escape_string($con, $_POST['comments']);
@@ -30,7 +30,7 @@ if (isset($_POST['addPayment'])) {
         if ($resPay) {
             echo "<script>alert('Paiement enregistré !');</script>";
         } else {
-            echo "<script>alert('Erreur lors de l\'insertion du paiement');</script>";
+            echo "<script>alert('Erreur lors de l\\'insertion du paiement');</script>";
         }
     }
     // Refresh
@@ -52,10 +52,9 @@ if (isset($_GET['searchTerm']) && !empty($_GET['searchTerm'])) {
 }
 
 // ============================
-// 3) Sous-requête : Somme factures
+// 3) Sous-requête : Somme factures (groupé par client)
 // ============================
-// On regroupe par (CustomerName, MobileNumber)
-$sqlFactures = "
+$subFact = "
   SELECT CustomerName, MobileNumber, SUM(FinalAmount) AS totalFactures
   FROM tblcustomer
   $whereCust
@@ -63,9 +62,9 @@ $sqlFactures = "
 ";
 
 // ============================
-// 4) Sous-requête : Somme paiements
+// 4) Sous-requête : Somme paiements (groupé par client)
 // ============================
-$sqlPaiements = "
+$subPay = "
   SELECT CustomerName, MobileNumber, SUM(Amount) AS totalPaiements
   FROM tblpayments
   $wherePay
@@ -73,78 +72,42 @@ $sqlPaiements = "
 ";
 
 // ============================
-// 5) Jointure sur (CustomerName, MobileNumber)
+// 5) Liste unifiée des clients
 // ============================
-// On fait un LEFT JOIN dans un sens, puis un RIGHT JOIN, ou un FULL OUTER JOIN si MySQL le permet (ce n'est pas standard).
-// Méthode simple : on fait un "union" de clients, puis on left join sur chaque. 
-// Mais ici, je vais utiliser la technique de la "join" sur la sous-requête
+// On prend tous ceux présents dans tblcustomer union tblpayments
+$allClients = "
+  SELECT CustomerName, MobileNumber FROM tblcustomer $whereCust
+  UNION
+  SELECT CustomerName, MobileNumber FROM tblpayments $wherePay
+";
+
+// ============================
+// 6) On fait un LEFT JOIN des sommes sur la liste unifiée
+// ============================
+// => Cela simule un FULL JOIN
 $sql = "
   SELECT 
-    COALESCE(f.CustomerName, p.CustomerName) as cName,
-    COALESCE(f.MobileNumber, p.MobileNumber) as cMobile,
-    IFNULL(f.totalFactures, 0) as totalFactures,
-    IFNULL(p.totalPaiements, 0) as totalPaiements
-  FROM
-    ($sqlFactures) f
-  FULL JOIN
-    ($sqlPaiements) p
-    ON f.CustomerName = p.CustomerName
-    AND f.MobileNumber = p.MobileNumber
+    ac.CustomerName AS cName,
+    ac.MobileNumber AS cMobile,
+    IFNULL(f.totalFactures, 0) AS totalFactures,
+    IFNULL(p.totalPaiements, 0) AS totalPaiements
+  FROM (
+    $allClients
+  ) AS ac
+  LEFT JOIN ($subFact) f
+    ON f.CustomerName = ac.CustomerName
+   AND f.MobileNumber = ac.MobileNumber
+  LEFT JOIN ($subPay) p
+    ON p.CustomerName = ac.CustomerName
+   AND p.MobileNumber = ac.MobileNumber
   ORDER BY cName ASC
 ";
 
-// NOTE : MySQL n'a pas de FULL JOIN natif, donc on peut faire un UNION trick. 
-// Si ton MySQL ne supporte pas FULL JOIN, on peut faire un LEFT JOIN + RIGHT JOIN union. 
-// Par simplicité, si tu es sur MariaDB ou MySQL8, tu peux installer la table MDEV-10132 pour FULL JOIN. 
-// Sinon, on va faire autrement. 
-// => Je vais faire un LEFT JOIN + un RIGHT JOIN et un UNION. 
-// => Pour l'exemple, je vais le simplifier en 2 requêtes + union distinct.
-
-$engine = mysqli_get_server_info($con);
-// Si FULL JOIN non supporté, on fait un "trick" :
-
-if (stripos($engine, 'MariaDB') === false && stripos($engine, 'mysql') !== false) {
-    // On va faire la solution "union" (LEFT + RIGHT)
-    // LEFT
-    $sqlLeft = "
-      SELECT 
-        f.CustomerName AS cName,
-        f.MobileNumber AS cMobile,
-        f.totalFactures,
-        IFNULL(p.totalPaiements, 0) AS totalPaiements
-      FROM ($sqlFactures) f
-      LEFT JOIN ($sqlPaiements) p
-        ON f.CustomerName = p.CustomerName
-       AND f.MobileNumber = p.MobileNumber
-    ";
-    // RIGHT
-    $sqlRight = "
-      SELECT
-        p.CustomerName AS cName,
-        p.MobileNumber AS cMobile,
-        IFNULL(f.totalFactures, 0) AS totalFactures,
-        p.totalPaiements
-      FROM ($sqlPaiements) p
-      RIGHT JOIN ($sqlFactures) f
-        ON f.CustomerName = p.CustomerName
-       AND f.MobileNumber = p.MobileNumber
-      WHERE f.CustomerName IS NULL
-        AND f.MobileNumber IS NULL
-    ";
-    // union
-    $sql = "
-      SELECT * FROM (
-        $sqlLeft
-        UNION
-        $sqlRight
-      ) as unioned
-      ORDER BY cName ASC
-    ";
-}
-
 // Exécution
 $res = mysqli_query($con, $sql);
-
+if (!$res) {
+    die("Erreur SQL : " . mysqli_error($con));
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -194,7 +157,7 @@ $res = mysqli_query($con, $sql);
         $fact    = floatval($row['totalFactures']);
         $pay     = floatval($row['totalPaiements']);
         $solde   = $fact - $pay; 
-        if ($solde < 0) $solde = 0;
+        if ($solde < 0) $solde = 0; // on évite un solde négatif
         ?>
         <tr>
           <td><?php echo $cnt++; ?></td>
