@@ -10,15 +10,15 @@ if (strlen($_SESSION['imsaid']==0)) {
 
   ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-<title>Inventory Management System|| Search Invoice</title>
+<title>Système de Gestion d'Inventaire || Rechercher Facture</title>
 <?php include_once('includes/cs.php');?>
 <script type="text/javascript">
 
 function print1(strid)
 {
-if(confirm("Do you want to print?"))
+if(confirm("Voulez-vous imprimer?"))
 {
 var values = document.getElementById(strid);
 var printing =
@@ -40,8 +40,8 @@ printing.print();
 
 <div id="content">
   <div id="content-header">
-    <div id="breadcrumb"> <a href="dashboard.php" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <a href="invoice-search.php" class="current">Search Invoice</a> </div>
-    <h1>Search Invoice</h1>
+    <div id="breadcrumb"> <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom"><i class="icon-home"></i> Accueil</a> <a href="invoice-search.php" class="current">Rechercher Facture</a> </div>
+    <h1>Rechercher Facture</h1>
   </div>
   <div class="container-fluid">
     <hr>
@@ -51,14 +51,14 @@ printing.print();
           <form method="post" class="form-horizontal">
            
             <div class="control-group">
-              <label class="control-label">Search Invoice :</label>
+              <label class="control-label">Rechercher Facture :</label>
               <div class="controls">
-                <input type="text" class="span11" name="searchdata" id="searchdata" value="" required='true' placeholder="Search by Billing Number or Mobile Number"/>
+                <input type="text" class="span11" name="searchdata" id="searchdata" value="" required='true' placeholder="Rechercher par numéro de facture ou numéro de mobile"/>
               </div>
             </div>
           
            <div class="text-center">
-                  <button class="btn btn-primary my-4" type="submit" name="search">Search</button>
+                  <button class="btn btn-primary my-4" type="submit" name="search">Rechercher</button>
                 </div>
           </form>
             <br>
@@ -70,7 +70,7 @@ if(isset($_POST['search']))
 
 $sdata=$_POST['searchdata'];
   ?>
-             <h4 align="center">Result against "<?php echo $sdata;?>" keyword </h4>
+             <h4 align="center">Résultat pour le mot-clé "<?php echo $sdata;?>" </h4>
      <div id="print2">     
 <?php     
 
@@ -79,18 +79,18 @@ $ret=mysqli_query($con,"select distinct tblcustomer.CustomerName,tblcustomer.Mob
 
 while ($row=mysqli_fetch_array($ret)) {
 ?>
-<h3 class="mb-4">Invoice #<?php  echo $invoiceid=$row['BillingNumber'];?></h3>
+<h3 class="mb-4">Facture #<?php  echo $invoiceid=$row['BillingNumber'];?></h3>
   <div class="table-responsive">
     <table class="table align-items-center"  border="1" width="100%">
             <tr>
-<th style="font-size: 12px">Customer Name:</th>
+<th style="font-size: 12px">Nom du client:</th>
 <td style="font-size: 12px"> <?php  echo $row['CustomerName'];?>  </td>
-<th style="font-size: 12px">Customer Mobile Number:</th>
+<th style="font-size: 12px">Numéro de mobile du client:</th>
 <td style="font-size: 12px"> <?php  echo $row['MobileNumber'];?>  </td>
 </tr>
 
 <tr>
-<th style="font-size: 12px">Mode of Payment:</th>
+<th style="font-size: 12px">Mode de paiement:</th>
 <td colspan="3" style="font-size: 12px"> <?php  echo $row['ModeofPayment'];?>  </td>
 
 </tr>
@@ -102,17 +102,17 @@ while ($row=mysqli_fetch_array($ret)) {
         
         <div class="widget-box">
           <div class="widget-title"> <span class="icon"><i class="icon-th"></i></span>
-            <h5>Products Details</h5>
+            <h5>Détails des produits</h5>
           </div>
           <div class="widget-content nopadding"  border="1" width="100%">
             <table class="table table-bordered" style="font-size: 15px">
               <thead>
                 <tr>
-                  <th style="font-size: 12px">S.NO</th>
-                  <th style="font-size: 12px">Product Name</th>
-                  <th style="font-size: 12px">Model Number</th>
-                  <th style="font-size: 12px">Quantity</th>
-                  <th style="font-size: 12px">Price(per unit)</th>
+                  <th style="font-size: 12px">N°</th>
+                  <th style="font-size: 12px">Nom du produit</th>
+                  <th style="font-size: 12px">Numéro de modèle</th>
+                  <th style="font-size: 12px">Quantité</th>
+                  <th style="font-size: 12px">Prix (par unité)</th>
                   <th style="font-size: 12px">Total</th>
                  
                 </tr>
@@ -144,19 +144,19 @@ $cnt=$cnt+1;
 $gtotal+=$total;
 }?>
  <tr>
-                  <th colspan="5" style="text-align: center;color: red;font-weight: bold;font-size: 15px">  Grand Total</th>
+                  <th colspan="5" style="text-align: center;color: red;font-weight: bold;font-size: 15px">  Total général</th>
                   <th style="text-align: center;color: red;font-weight: bold;font-size: 15px"><?php  echo $gtotal;?></th>
                 </tr>
                 <?php } else { ?>
   <tr>
-    <td colspan="8"> No record found against this search</td>
+    <td colspan="8"> Aucun enregistrement trouvé pour cette recherche</td>
 
   </tr>
    
 <?php } ?>
               </tbody>
             </table>
-              <p style="text-align: center; padding-top: 30px"><input type="button"  name="printbutton" value="Print" onclick="return print1('print2')"/></p>
+              <p style="text-align: center; padding-top: 30px"><input type="button"  name="printbutton" value="Imprimer" onclick="return print1('print2')"/></p>
 <?php } ?>          </div>
         </div>
 </div>

@@ -14,20 +14,20 @@ if (strlen($_SESSION['imsaid']==0)) {
     $query=mysqli_query($con, "update tblcategory set CategoryName='$category',Status='$status' where ID=$eid");
     if ($query) {
    
-    echo '<script>alert("Category has been updated.")</script>';
+    echo '<script>alert("La catégorie a été mise à jour.")</script>';
   }
   else
     {
-     echo '<script>alert("Something Went Wrong. Please try again")</script>';
+     echo '<script>alert("Quelque chose a mal tourné. Veuillez réessayer.")</script>';
     }
 
   
 }
   ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-<title>Inventory Management System|| Update Category</title>
+<title>Système de gestion des stocks || Mettre à jour la catégorie</title>
 <?php include_once('includes/cs.php');?>
 </head>
 <body>
@@ -39,8 +39,8 @@ if (strlen($_SESSION['imsaid']==0)) {
 
 <div id="content">
 <div id="content-header">
-  <div id="breadcrumb"> <a href="dashboard.php" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <strong>Update Category</strong></div>
-  <h1>Update Category</h1>
+  <div id="breadcrumb"> <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom"><i class="icon-home"></i> Accueil</a> <strong>Mettre à jour la catégorie</strong></div>
+  <h1>Mettre à jour la catégorie</h1>
 </div>
 <div class="container-fluid">
   <hr>
@@ -48,7 +48,7 @@ if (strlen($_SESSION['imsaid']==0)) {
     <div class="span12">
       <div class="widget-box">
         <div class="widget-title"> <span class="icon"> <i class="icon-align-justify"></i> </span>
-          <h5>Update Category</h5>
+          <h5>Mettre à jour la catégorie</h5>
         </div>
         <div class="widget-content nopadding">
           <form method="post" class="form-horizontal">
@@ -60,13 +60,13 @@ while ($row=mysqli_fetch_array($ret)) {
 
 ?>
             <div class="control-group">
-              <label class="control-label">Category Name :</label>
+              <label class="control-label">Nom de la catégorie :</label>
               <div class="controls">
                 <input type="text" class="span11" name="category" id="category" value="<?php  echo $row['CategoryName'];?>" required='true' />
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label">Status :</label>
+              <label class="control-label">Statut :</label>
               <div class="controls">
                 <?php  if($row['Status']=="1"){ ?>
                 <input type="checkbox"  name="status" id="status" value="1"  checked="true"/>
@@ -78,7 +78,7 @@ while ($row=mysqli_fetch_array($ret)) {
             
            <?php } ?>
             <div class="form-actions">
-              <button type="submit" class="btn btn-success" name="submit">Update</button>
+              <button type="submit" class="btn btn-success" name="submit">Mettre à jour</button>
             </div>
           </form>
         </div>

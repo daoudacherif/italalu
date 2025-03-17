@@ -14,20 +14,20 @@ if (strlen($_SESSION['imsaid']==0)) {
     $query=mysqli_query($con, "update tblbrand set BrandName='$brandname',Status='$status' where ID=$eid");
     if ($query) {
    
-    echo '<script>alert("Brand name has been updated.")</script>';
+    echo '<script>alert("Le nom de la marque a été mis à jour.")</script>';
   }
   else
     {
-     echo '<script>alert("Something Went Wrong. Please try again")</script>';
+     echo '<script>alert("Quelque chose s\'est mal passé. Veuillez réessayer")</script>';
     }
 
   
 }
   ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-<title>Inventory Management System|| Update Brand</title>
+<title>Système de gestion d'inventaire || Mettre à jour la marque</title>
 <?php include_once('includes/cs.php');?>
 </head>
 <body>
@@ -39,8 +39,8 @@ if (strlen($_SESSION['imsaid']==0)) {
 
 <div id="content">
 <div id="content-header">
-  <div id="breadcrumb"> <a href="dashboard.php" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <strong>Update Brand</strong></div>
-  <h1>Update Brand</h1>
+  <div id="breadcrumb"> <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom"><i class="icon-home"></i> Accueil</a> <strong>Mettre à jour la marque</strong></div>
+  <h1>Mettre à jour la marque</h1>
 </div>
 <div class="container-fluid">
   <hr>
@@ -48,7 +48,7 @@ if (strlen($_SESSION['imsaid']==0)) {
     <div class="span12">
       <div class="widget-box">
         <div class="widget-title"> <span class="icon"> <i class="icon-align-justify"></i> </span>
-          <h5>Update Brand</h5>
+          <h5>Mettre à jour la marque</h5>
         </div>
         <div class="widget-content nopadding">
           <form method="post" class="form-horizontal">
@@ -60,13 +60,13 @@ while ($row=mysqli_fetch_array($ret)) {
 
 ?>
             <div class="control-group">
-              <label class="control-label">Brand Name :</label>
+              <label class="control-label">Nom de la marque :</label>
               <div class="controls">
                 <input type="text" class="span11" name="brandname" id="brandname" value="<?php  echo $row['BrandName'];?>" required='true' />
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label">Status :</label>
+              <label class="control-label">Statut :</label>
               <div class="controls">
                 <?php  if($row['Status']=="1"){ ?>
                 <input type="checkbox"  name="status" id="status" value="1"  checked="true"/>
@@ -78,7 +78,7 @@ while ($row=mysqli_fetch_array($ret)) {
             
            <?php } ?>
             <div class="form-actions">
-              <button type="submit" class="btn btn-success" name="submit">Update</button>
+              <button type="submit" class="btn btn-success" name="submit">Mettre à jour</button>
             </div>
           </form>
         </div>

@@ -14,18 +14,18 @@ if (strlen($_SESSION['imsaid']==0)) {
      $query=mysqli_query($con, "update tbladmin set AdminName ='$aname', MobileNumber='$mobno' where ID='$adminid'");
     if ($query) {
     
-    echo '<script>alert("Admin profile has been updated.")</script>';
+    echo '<script>alert("Le profil de l\'administrateur a été mis à jour.")</script>';
   }
   else
     {
-      echo '<script>alert("Something Went Wrong. Please try again")</script>';
+      echo '<script>alert("Quelque chose a mal tourné. Veuillez réessayer.")</script>';
     }
   }
   ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-<title>Inventory Management System|| Profile</title>
+<title>Système de gestion des stocks || Profil</title>
 <?php include_once('includes/cs.php');?>
 </head>
 <body>
@@ -37,8 +37,8 @@ if (strlen($_SESSION['imsaid']==0)) {
 
 <div id="content">
 <div id="content-header">
-  <div id="breadcrumb"> <a href="dashboard.php" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <a href="profile.php" class="tip-bottom">Profile</a></div>
-  <h1>Profile</h1>
+  <div id="breadcrumb"> <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom"><i class="icon-home"></i> Accueil</a> <a href="profile.php" class="tip-bottom">Profil</a></div>
+  <h1>Profil</h1>
 </div>
 <div class="container-fluid">
   <hr>
@@ -46,7 +46,7 @@ if (strlen($_SESSION['imsaid']==0)) {
     <div class="span12">
       <div class="widget-box">
         <div class="widget-title"> <span class="icon"> <i class="icon-align-justify"></i> </span>
-          <h5>Profile</h5>
+          <h5>Profil</h5>
         </div>
         <div class="widget-content nopadding">
           <form method="post" class="form-horizontal">
@@ -58,31 +58,31 @@ while ($row=mysqli_fetch_array($ret)) {
 
 ?>
             <div class="control-group">
-              <label class="control-label">Admin Name :</label>
+              <label class="control-label">Nom de l'administrateur :</label>
               <div class="controls">
                 <input type="text" class="span11" name="adminname" id="adminname" value="<?php  echo $row['AdminName'];?>" required='true' />
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label">User Name :</label>
+              <label class="control-label">Nom d'utilisateur :</label>
               <div class="controls">
                 <input type="text" class="span11" name="username" id="username" value="<?php  echo $row['UserName'];?>" readonly="true" />
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label">Contact Number</label>
+              <label class="control-label">Numéro de contact :</label>
               <div class="controls">
                 <input type="text"  class="span11"id="contactnumber" name="contactnumber" value="<?php  echo $row['MobileNumber'];?>" required='true' maxlength='10' patter='[0-9]+'  />
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label">Email address :</label>
+              <label class="control-label">Adresse e-mail :</label>
               <div class="controls">
                 <input type="email" class="span11" id="email" name="email" class="form-control1 input-lg" value="<?php  echo $row['Email'];?>" readonly='true' />
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label">Registration Date:</label>
+              <label class="control-label">Date d'inscription :</label>
               <div class="controls">
                 <input type="text" class="span11" value="<?php  echo $row['AdminRegdate'];?>" readonly="true" />
                 </div>
@@ -90,7 +90,7 @@ while ($row=mysqli_fetch_array($ret)) {
             
             <?php } ?>
             <div class="form-actions">
-              <button type="submit" class="btn btn-success" name="submit">Update</button>
+              <button type="submit" class="btn btn-success" name="submit">Mettre à jour</button>
             </div>
           </form>
         </div>

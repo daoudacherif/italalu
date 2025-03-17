@@ -16,20 +16,20 @@ $status=$_POST['status'];
     $query=mysqli_query($con, "update tblsubcategory set CatID  ='$catid', SubCategoryname='$subcat',Status='$status' where ID='$sid'");
     
     if ($query) {
-    echo '<script>alert("Sub Category has been updated.")</script>';
+    echo '<script>alert("La sous-catégorie a été mise à jour.")</script>';
   }
   else
     {
-       echo '<script>alert("Something Went Wrong. Please try again")</script>';
+       echo '<script>alert("Quelque chose a mal tourné. Veuillez réessayer")</script>';
     }
 
   
 }
   ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-<title>Inventory Management System|| Update Sub Category</title>
+<title>Système de gestion des stocks || Mettre à jour la sous-catégorie</title>
 <?php include_once('includes/cs.php');?>
 </head>
 <body>
@@ -41,8 +41,8 @@ $status=$_POST['status'];
 
 <div id="content">
 <div id="content-header">
-  <div id="breadcrumb"> <a href="dashboard.php" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <strong>Update Sub Category</strong></div>
-  <h1>Update Sub Category</h1>
+  <div id="breadcrumb"> <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom"><i class="icon-home"></i> Accueil</a> <strong>Mettre à jour la sous-catégorie</strong></div>
+  <h1>Mettre à jour la sous-catégorie</h1>
 </div>
 <div class="container-fluid">
   <hr>
@@ -50,7 +50,7 @@ $status=$_POST['status'];
     <div class="span12">
       <div class="widget-box">
         <div class="widget-title"> <span class="icon"> <i class="icon-align-justify"></i> </span>
-          <h5>Update Category</h5>
+          <h5>Mettre à jour la catégorie</h5>
         </div>
         <div class="widget-content nopadding">
           <form method="post" class="form-horizontal">
@@ -62,7 +62,7 @@ while ($row=mysqli_fetch_array($ret)) {
 
 ?>
             <div class="control-group">
-              <label class="control-label">Category Name :</label>
+              <label class="control-label">Nom de la catégorie :</label>
               <div class="controls">
                 <select name="category" class="span11" required="true">
                     <option value="<?php echo $row['cid'];?>"><?php echo $row['catname'];?></option>
@@ -76,13 +76,13 @@ while ($row=mysqli_fetch_array($ret)) {
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label">Sub Category Name :</label>
+              <label class="control-label">Nom de la sous-catégorie :</label>
               <div class="controls">
                 <input type="text" class="span11" name="subcat" id="subcat" value="<?php  echo $row['subcat'];?>" required='true' />
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label">Status :</label>
+              <label class="control-label">Statut :</label>
               <div class="controls">
                 <?php  if($row['Status']=="1"){ ?>
                 <input type="checkbox"  name="status" id="status" value="1"  checked="true"/>
@@ -94,7 +94,7 @@ while ($row=mysqli_fetch_array($ret)) {
             
            <?php } ?>
             <div class="form-actions">
-              <button type="submit" class="btn btn-success" name="update">Update</button>
+              <button type="submit" class="btn btn-success" name="update">Mettre à jour</button>
             </div>
           </form>
         </div>

@@ -10,9 +10,9 @@ if (strlen($_SESSION['imsaid']==0)) {
 
   ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-<title>Inventory Management System|| Manage Products</title>
+<title>Système de Gestion d'Inventaire || Gérer les Produits</title>
 <?php include_once('includes/cs.php');?>
 </head>
 <body>
@@ -23,8 +23,8 @@ if (strlen($_SESSION['imsaid']==0)) {
 
 <div id="content">
   <div id="content-header">
-    <div id="breadcrumb"> <a href="dashboard.php" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <a href="manage-product.php" class="current">Manage Products</a> </div>
-    <h1>Manage Products</h1>
+    <div id="breadcrumb"> <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom"><i class="icon-home"></i> Accueil</a> <a href="manage-product.php" class="current">Gérer les Produits</a> </div>
+    <h1>Gérer les Produits</h1>
   </div>
   <div class="container-fluid">
     <hr>
@@ -36,21 +36,21 @@ if (strlen($_SESSION['imsaid']==0)) {
         
         <div class="widget-box">
           <div class="widget-title"> <span class="icon"><i class="icon-th"></i></span>
-            <h5>Manage Products</h5>
+            <h5>Gérer les Produits</h5>
           </div>
           <div class="widget-content nopadding">
             <table class="table table-bordered data-table">
               <thead>
                 <tr>
-                  <th>S.NO</th>
-                  <th>Product Name</th>
-                  <th>Category Name</th>
-                   <th>SubCategory Name</th>
-                  <th>Brand Name</th>
-                  <th>Model Number</th>
+                  <th>N°</th>
+                  <th>Nom du Produit</th>
+                  <th>Nom de la Catégorie</th>
+                   <th>Nom de la Sous-Catégorie</th>
+                  <th>Nom de la Marque</th>
+                  <th>Numéro de Modèle</th>
                   <th>Stock</th>
-                  <th>Status</th>
-                  <th>Creation Date</th>
+                  <th>Statut</th>
+                  <th>Date de Création</th>
                   <th>Action</th>
                   
                 </tr>
@@ -73,8 +73,8 @@ while ($row=mysqli_fetch_array($ret)) {
                   <td><?php  echo $row['Stock'];?></td>
                   <?php if($row['Status']=="1"){ ?>
 
-                     <td><?php echo "Active"; ?></td>
-<?php } else { ?>                  <td><?php echo "Inactive"; ?>
+                     <td><?php echo "Actif"; ?></td>
+<?php } else { ?>                  <td><?php echo "Inactif"; ?>
                   </td>
                   <?php } ?>
                   <td><?php  echo $row['CreationDate'];?></td>

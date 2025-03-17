@@ -10,9 +10,9 @@ if (strlen($_SESSION['imsaid']==0)) {
 
   ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-<title>Inventory Management System|| View Products Inventory</title>
+<title>Système de Gestion d'Inventaire || Voir l'Inventaire des Produits</title>
 <?php include_once('includes/cs.php');?>
 </head>
 <body>
@@ -23,8 +23,8 @@ if (strlen($_SESSION['imsaid']==0)) {
 
 <div id="content">
   <div id="content-header">
-    <div id="breadcrumb"> <a href="dashboard.php" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a><strong> View Products Inventory</strong> </div>
-    <h1>View Products Inventory</h1>
+    <div id="breadcrumb"> <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom"><i class="icon-home"></i> Accueil</a><strong> Voir l'Inventaire des Produits</strong> </div>
+    <h1>Voir l'Inventaire des Produits</h1>
   </div>
   <div class="container-fluid">
     <hr>
@@ -36,21 +36,21 @@ if (strlen($_SESSION['imsaid']==0)) {
         
         <div class="widget-box">
           <div class="widget-title"> <span class="icon"><i class="icon-th"></i></span>
-            <h5>Products Inventory</h5>
+            <h5>Inventaire des Produits</h5>
           </div>
           <div class="widget-content nopadding">
             <table class="table table-bordered data-table">
               <thead>
                 <tr>
-                  <th>S.NO</th>
-                  <th>Product Name</th>
-                  <th>Category Name</th>
-                   <th>SubCategory Name</th>
-                  <th>Brand Name</th>
-                  <th>Model Number</th>
+                  <th>N°</th>
+                  <th>Nom du Produit</th>
+                  <th>Nom de la Catégorie</th>
+                   <th>Nom de la Sous-Catégorie</th>
+                  <th>Nom de la Marque</th>
+                  <th>Numéro de Modèle</th>
                   <th>Stock</th>
-                  <th>Remaining Stock</th>
-                  <th>Status</th>
+                  <th>Stock Restant</th>
+                  <th>Statut</th>
                 </tr>
               </thead>
               <tbody>
@@ -74,8 +74,8 @@ $qty=$row['selledqty'];
                    <td><?php  echo ($_SESSION['rqty']=$row['Stock']-$qty);?></td>
                   <?php if($row['Status']=="1"){ ?>
 
-                     <td><?php echo "Active"; ?></td>
-<?php } else { ?>                  <td><?php echo "Inactive"; ?>
+                     <td><?php echo "Actif"; ?></td>
+<?php } else { ?>                  <td><?php echo "Inactif"; ?>
                   </td>
                   <?php } ?>
                                   
@@ -84,7 +84,7 @@ $qty=$row['selledqty'];
 $cnt=$cnt+1;
 } } else { ?>
   <tr>
-    <td colspan="8"> No record found .</td>
+    <td colspan="8"> Aucun enregistrement trouvé.</td>
 
   </tr>
    

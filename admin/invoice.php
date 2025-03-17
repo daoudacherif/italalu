@@ -10,15 +10,15 @@ if (strlen($_SESSION['imsaid']==0)) {
 
   ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-<title>Inventory Management System|| Invoice</title>
+<title>Système de Gestion d'Inventaire || Facture</title>
 <?php include_once('includes/cs.php');?>
 <script type="text/javascript">
 
 function print1(strid)
 {
-if(confirm("Do you want to print?"))
+if(confirm("Voulez-vous imprimer?"))
 {
 var values = document.getElementById(strid);
 var printing =
@@ -40,15 +40,15 @@ printing.print();
 
 <div id="content">
   <div id="content-header">
-    <div id="breadcrumb"> <a href="dashboard.php" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <a href="manage-category.php" class="current">Invoice</a> </div>
-    <h1>Invoice</h1>
+    <div id="breadcrumb"> <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom"><i class="icon-home"></i> Accueil</a> <a href="manage-category.php" class="current">Facture</a> </div>
+    <h1>Facture</h1>
   </div>
   <div class="container-fluid">
     <hr>
     <div class="row-fluid">
       <div class="span12" id="print2">
         
-        <h3 class="mb-4">Invoice #<?php echo $_SESSION['invoiceid']?></h3>
+        <h3 class="mb-4">Facture #<?php echo $_SESSION['invoiceid']?></h3>
 <?php     
 
 $billingid=$_SESSION['invoiceid'];
@@ -60,14 +60,14 @@ while ($row=mysqli_fetch_array($ret)) {
   <div class="table-responsive">
     <table class="table align-items-center" width="100%" border="1">
             <tr>
-<th>Customer Name:</th>
+<th>Nom du client:</th>
 <td> <?php  echo $row['CustomerName'];?>  </td>
-<th>Customer Number:</th>
+<th>Numéro du client:</th>
 <td> <?php  echo $row['MobileNumber'];?>  </td>
 </tr>
 
 <tr>
-<th>Mode of Payment:</th>
+<th>Mode de paiement:</th>
 <td colspan="3"> <?php  echo $row['ModeofPayment'];?>  </td>
 
 </tr>
@@ -79,17 +79,17 @@ while ($row=mysqli_fetch_array($ret)) {
         
         <div class="widget-box">
           <div class="widget-title"> <span class="icon"><i class="icon-th"></i></span>
-            <h5>Products Inventory</h5>
+            <h5>Inventaire des produits</h5>
           </div>
           <div class="widget-content nopadding" width="100%" border="1">
             <table class="table table-bordered data-table" style="font-size: 15px">
               <thead>
                 <tr>
-                  <th style="font-size: 12px">S.NO</th>
-                  <th style="font-size: 12px">Product Name</th>
-                  <th style="font-size: 12px">Model Number</th>
-                  <th style="font-size: 12px">Quantity</th>
-                  <th style="font-size: 12px">Price(per unit)</th>
+                  <th style="font-size: 12px">N°</th>
+                  <th style="font-size: 12px">Nom du produit</th>
+                  <th style="font-size: 12px">Numéro de modèle</th>
+                  <th style="font-size: 12px">Quantité</th>
+                  <th style="font-size: 12px">Prix (par unité)</th>
                   <th style="font-size: 12px">Total</th>
                  
                 </tr>
@@ -118,12 +118,12 @@ $cnt=$cnt+1;
 $gtotal+=$total;
 }?>
  <tr>
-                  <th colspan="5" style="text-align: center;color: red;font-weight: bold;font-size: 15px">  Grand Total</th>
+                  <th colspan="5" style="text-align: center;color: red;font-weight: bold;font-size: 15px">  Total général</th>
                   <th colspan="4" style="text-align: center;color: red;font-weight: bold;font-size: 15px"><?php  echo $gtotal;?></th>
                 </tr>
               </tbody>
             </table>
-             <p style="text-align: center; padding-top: 30px"><input type="button"  name="printbutton" value="Print" onclick="return print1('print2')"/></p>
+             <p style="text-align: center; padding-top: 30px"><input type="button"  name="printbutton" value="Imprimer" onclick="return print1('print2')"/></p>
 
           </div>
         </div>

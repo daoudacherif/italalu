@@ -17,23 +17,19 @@ $remainqty=$_SESSION['rqty'];
 if($pqty<=$remainqty)
 {
 $query=mysqli_query($con,"insert into tblcart(ProductId,ProductQty,IsCheckOut) value('$pid','$pqty','$ischecout')");
- echo "<script>alert('Product has been added in to the cart');</script>"; 
+ echo "<script>alert('Le produit a été ajouté au panier');</script>"; 
   echo "<script>window.location.href = 'search.php'</script>";     
 } else{
-$msg="You can't add quantity more than Remaining quantity";
+$msg="Vous ne pouvez pas ajouter une quantité supérieure à la quantité restante";
 
 }
-
-
-
-
 
 }
   ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Inventory Management System|| Add Products</title>
+<title>Système de gestion des stocks || Ajouter des produits</title>
 <?php include_once('includes/cs.php');?>
 </head>
 <body>
@@ -44,8 +40,8 @@ $msg="You can't add quantity more than Remaining quantity";
 
 <div id="content">
   <div id="content-header">
-    <div id="breadcrumb"> <a href="dashboard.php" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <a href="search.php" class="current">Search Products</a> </div>
-    <h1>Search Products</h1>
+    <div id="breadcrumb"> <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom"><i class="icon-home"></i> Accueil</a> <a href="search.php" class="current">Rechercher des produits</a> </div>
+    <h1>Rechercher des produits</h1>
   </div>
   <div class="container-fluid">
     <hr>
@@ -56,14 +52,14 @@ $msg="You can't add quantity more than Remaining quantity";
           <form method="post" class="form-horizontal">
            
             <div class="control-group">
-              <label class="control-label">Search Product :</label>
+              <label class="control-label">Rechercher un produit :</label>
               <div class="controls">
                 <input type="text" class="span11" name="pname" id="pname" value="" required='true' />
               </div>
             </div>
           
            <div class="text-center">
-                  <button class="btn btn-primary my-4" type="submit" name="search">Search</button>
+                  <button class="btn btn-primary my-4" type="submit" name="search">Rechercher</button>
                 </div>
           </form>
             <br>
@@ -74,27 +70,27 @@ if(isset($_POST['search']))
 
 $sdata=$_POST['pname'];
   ?>
-  <h4 align="center">Result against "<?php echo $sdata;?>" keyword </h4> 
+  <h4 align="center">Résultat pour le mot-clé "<?php echo $sdata;?>" </h4> 
         
         <div class="widget-box">
           <div class="widget-title"> <span class="icon"><i class="icon-th"></i></span>
-            <h5>Search Products</h5>
+            <h5>Rechercher des produits</h5>
           </div>
           <div class="widget-content nopadding">
              
             <table class="table table-bordered data-table">
               <thead>
                 <tr>
-                  <th>S.NO</th>
-                  <th>Product Name</th>
-                  <th>Category Name</th>
-                   <th>SubCategory Name</th>
-                  <th>Brand Name</th>
-                  <th>Model Number</th>
+                  <th>N°</th>
+                  <th>Nom du produit</th>
+                  <th>Nom de la catégorie</th>
+                   <th>Nom de la sous-catégorie</th>
+                  <th>Nom de la marque</th>
+                  <th>Numéro de modèle</th>
                   <th>Stock</th>
-                  <th>Remaining Stock</th>
-                  <th> Buying Qty</th>
-                  <th>Status</th>
+                  <th>Stock restant</th>
+                  <th>Quantité d'achat</th>
+                  <th>Statut</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -123,18 +119,18 @@ $qty=$row['selledqty'];
  <td><input type="number" name="pqty" value="1" required="true" style="width:40px;"></td>
                   <?php if($row['Status']=="1"){ ?>
 
-                     <td><?php echo "Active"; ?></td>
-<?php } else { ?>                  <td><?php echo "Inactive"; ?>
+                     <td><?php echo "Actif"; ?></td>
+<?php } else { ?>                  <td><?php echo "Inactif"; ?>
                   </td>
                   <?php } ?>
-                 <td><button type="submit" name="cart" class="btn btn-primary my-4">Add to Cart</button></td>               
+                 <td><button type="submit" name="cart" class="btn btn-primary my-4">Ajouter au panier</button></td>               
                 </tr>
               </form>
                 <?php 
 $cnt=$cnt+1;
 } }  else { ?>
   <tr>
-    <td colspan="8"> No record found .</td>
+    <td colspan="8"> Aucun enregistrement trouvé.</td>
 
   </tr>
    

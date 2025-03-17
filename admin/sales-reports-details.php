@@ -10,9 +10,9 @@ if (strlen($_SESSION['imsaid']==0)) {
 
   ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-<title>Inventory Management System|| Sales Report Details</title>
+<title>Système de gestion d'inventaire || Détails du rapport de ventes</title>
 <?php include_once('includes/cs.php');?>
 </head>
 <body>
@@ -23,8 +23,8 @@ if (strlen($_SESSION['imsaid']==0)) {
 
 <div id="content">
   <div id="content-header">
-    <div id="breadcrumb"> <a href="dashboard.php" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <a href="sales-report.php" class="current">Sales Report Details</a> </div>
-    <h1>Sales Report Details</h1>
+    <div id="breadcrumb"> <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom"><i class="icon-home"></i> Accueil</a> <a href="sales-report.php" class="current">Détails du rapport de ventes</a> </div>
+    <h1>Détails du rapport de ventes</h1>
   </div>
   <div class="container-fluid">
     <hr>
@@ -49,19 +49,19 @@ $m2=date("F",$month2);
 $y1=date("Y",$month1);
 $y2=date("Y",$month2);
     ?>
- <h5 style="color: blue;font-size: 15px">Sales Report  from <?php echo $m1."-".$y1;?> to <?php echo $m2."-".$y2;?></h5>
+ <h5 style="color: blue;font-size: 15px">Rapport de ventes de <?php echo $m1."-".$y1;?> à <?php echo $m2."-".$y2;?></h5>
 
           </div>
           <div class="widget-content nopadding">
             <table class="table table-bordered data-table">
               <thead>
                 <tr>
-                  <th>S.NO</th>
-                  <th>Month / Year </th>
-                  <th>Product Name</th>
-                  <th>Model Number</th>
-                  <th>Qty Sold</th>
-                  <th>Per Unit Price</th>
+                  <th>N°</th>
+                  <th>Mois / Année</th>
+                  <th>Nom du produit</th>
+                  <th>Numéro de modèle</th>
+                  <th>Quantité vendue</th>
+                  <th>Prix unitaire</th>
                   <th>Total</th>
                 </tr>
               </thead>
@@ -90,7 +90,7 @@ $gtotal+=$total;
 $cnt=$cnt+1;
 }?>
  <tr>
-<th colspan="6" style="text-align: center;color: red;font-size: 15px">Grand Total</th>  
+<th colspan="6" style="text-align: center;color: red;font-size: 15px">Total général</th>  
 <th style="text-align: center;color: red;font-size: 15px"><?php echo $gtotal;?></th>  
 </tr>
 </tbody></table>
@@ -100,19 +100,19 @@ $year2=strtotime($tdate);
 $y1=date("Y",$year1);
 $y2=date("Y",$year2);
  ?>
- <h5 style="color: blue;font-size: 15px">Sales Report  from year <?php echo $y1;?> to year <?php echo $y2;?></h5>
+ <h5 style="color: blue;font-size: 15px">Rapport de ventes de l'année <?php echo $y1;?> à l'année <?php echo $y2;?></h5>
 
           </div>
           <div class="widget-content nopadding">
             <table class="table table-bordered data-table">
               <thead>
                 <tr>
-                  <th>S.NO</th>
-                  <th>Year</th>
-                  <th>Product Name</th>
-                  <th>Model Number</th>
-                  <th>Qty Sold</th>
-                  <th>Per Unit Price</th>
+                  <th>N°</th>
+                  <th>Année</th>
+                  <th>Nom du produit</th>
+                  <th>Numéro de modèle</th>
+                  <th>Quantité vendue</th>
+                  <th>Prix unitaire</th>
                   <th>Total</th>
                 </tr>
               </thead>

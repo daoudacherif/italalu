@@ -10,9 +10,9 @@ if (strlen($_SESSION['imsaid']==0)) {
 
   ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-<title>Inventory Management System|| Manage Sub Category</title>
+<title>Système de Gestion d'Inventaire || Gérer la Sous-catégorie</title>
 <?php include_once('includes/cs.php');?>
 </head>
 <body>
@@ -23,8 +23,8 @@ if (strlen($_SESSION['imsaid']==0)) {
 
 <div id="content">
   <div id="content-header">
-    <div id="breadcrumb"> <a href="dashboard.php" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <a href="manage-subcategory.php" class="current">Manage Sub Category</a> </div>
-    <h1>Manage Sub Category</h1>
+    <div id="breadcrumb"> <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom"><i class="icon-home"></i> Accueil</a> <a href="manage-subcategory.php" class="current">Gérer la Sous-catégorie</a> </div>
+    <h1>Gérer la Sous-catégorie</h1>
   </div>
   <div class="container-fluid">
     <hr>
@@ -36,17 +36,17 @@ if (strlen($_SESSION['imsaid']==0)) {
         
         <div class="widget-box">
           <div class="widget-title"> <span class="icon"><i class="icon-th"></i></span>
-            <h5>Manage Category</h5>
+            <h5>Gérer la Catégorie</h5>
           </div>
           <div class="widget-content nopadding">
             <table class="table table-bordered data-table">
               <thead>
                 <tr>
-                  <th>S.NO</th>
-                  <th>Category Name</th>
-                  <th>Sub Category Name</th>
-                  <th>Status</th>
-                  <th>Creation Date</th>
+                  <th>N°</th>
+                  <th>Nom de la Catégorie</th>
+                  <th>Nom de la Sous-catégorie</th>
+                  <th>Statut</th>
+                  <th>Date de Création</th>
                   <th>Action</th>
                   
                 </tr>
@@ -64,8 +64,8 @@ while ($row=mysqli_fetch_array($ret)) {
                   <td><?php  echo $row['SubCategoryname'];?></td>
                   <?php if($row['Status']=="1"){ ?>
 
-                     <td><?php echo "Active"; ?></td>
-<?php } else { ?>                  <td><?php echo "Inactive"; ?>
+                     <td><?php echo "Actif"; ?></td>
+<?php } else { ?>                  <td><?php echo "Inactif"; ?>
                   </td>
                   <?php } ?>
                   <td><?php  echo $row['CreationDate'];?></td>

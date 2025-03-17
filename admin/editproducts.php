@@ -20,20 +20,20 @@ if (strlen($_SESSION['imsaid']==0)) {
     $query=mysqli_query($con, "update tblproducts set ProductName='$pname',CatID='$category',SubcatID='$subcategory',BrandName='$bname',ModelNumber='$modelno',Stock='$stock',Price='$price',Status='$status' where ID='$eid'");
     if ($query) {
    
-    echo '<script>alert("Product has been updated.")</script>';
+    echo '<script>alert("Le produit a été mis à jour.")</script>';
   }
   else
     {
-     echo '<script>alert("Something Went Wrong. Please try again")</script>';
+     echo '<script>alert("Quelque chose a mal tourné. Veuillez réessayer")</script>';
     }
 
   
 }
   ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-<title>Inventory Management System|| Update Products</title>
+<title>Système de gestion des stocks || Mettre à jour les produits</title>
 <?php include_once('includes/cs.php');?>
 <script>
 function getSubCat(val) {
@@ -62,8 +62,8 @@ $("#subcategory").html(data);
 
 <div id="content">
 <div id="content-header">
-  <div id="breadcrumb"> <a href="dashboard.php" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <strong>Update Product</strong></div>
-  <h1>Update Product</h1>
+  <div id="breadcrumb"> <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom"><i class="icon-home"></i> Accueil</a> <strong>Mettre à jour le produit</strong></div>
+  <h1>Mettre à jour le produit</h1>
 </div>
 <div class="container-fluid">
   <hr>
@@ -71,7 +71,7 @@ $("#subcategory").html(data);
     <div class="span12">
       <div class="widget-box">
         <div class="widget-title"> <span class="icon"> <i class="icon-align-justify"></i> </span>
-          <h5>Update Product</h5>
+          <h5>Mettre à jour le produit</h5>
         </div>
         <div class="widget-content nopadding">
           <form method="post" class="form-horizontal">
@@ -84,13 +84,13 @@ while ($row=mysqli_fetch_array($ret)) {
 
 ?>
            <div class="control-group">
-              <label class="control-label">Product Name :</label>
+              <label class="control-label">Nom du produit :</label>
               <div class="controls">
                 <input type="text" class="span11" name="pname" id="pname" value="<?php echo $row['ProductName'];?>" required='true'/>
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label">Category :</label>
+              <label class="control-label">Catégorie :</label>
               <div class="controls">
                 <select type="text" class="span11" name="category" id="category" onChange="getSubCat(this.value)" value="" required='true' />
                    <option value="<?php echo $row['catid'];?>"><?php echo $row['catname'];?></option>
@@ -104,7 +104,7 @@ while ($row=mysqli_fetch_array($ret)) {
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label">Sub Category Name: :</label>
+              <label class="control-label">Nom de la sous-catégorie :</label>
               <div class="controls">
                 <select type="text" class="span11" name="subcategory" id="subcategory" value="" required='true' />
                   <option value="<?php echo $row['scatid'];?>"><?php echo $row['subcat'];?></option>
@@ -112,7 +112,7 @@ while ($row=mysqli_fetch_array($ret)) {
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label">Brand Name: :</label>
+              <label class="control-label">Nom de la marque :</label>
               <div class="controls">
                 <select type="text" class="span11" name="bname" id="bname" value="" required='true' />
                   <option value="<?php echo $row['BrandName'];?>"><?php echo $row['BrandName'];?></option>
@@ -125,25 +125,25 @@ while ($row=mysqli_fetch_array($ret)) {
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label">Model Number :</label>
+              <label class="control-label">Numéro de modèle :</label>
               <div class="controls">
                 <input type="text" class="span11"  name="modelno" id="modelno" value="<?php echo $row['ModelNumber'];?>" required="true" maxlength="5"  />
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label">Stock(units) :</label>
+              <label class="control-label">Stock (unités) :</label>
               <div class="controls">
                 <input type="text" class="span11"  name="stock" id="stock" value="<?php echo $row['Stock'];?>" required="true"/>
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label">Price(perunits) :</label>
+              <label class="control-label">Prix (par unité) :</label>
               <div class="controls">
                 <input type="text" class="span11" name="price" id="price" value="<?php echo $row['Price'];?>" required="true"/>
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label">Status :</label>
+              <label class="control-label">Statut :</label>
               <div class="controls">
                 <?php  if($row['Status']=="1"){ ?>
                 <input type="checkbox"  name="status" id="status" value="1"  checked="true"/>
@@ -154,7 +154,7 @@ while ($row=mysqli_fetch_array($ret)) {
             </div>         
            <?php } ?>
             <div class="form-actions">
-              <button type="submit" class="btn btn-success" name="submit">Update</button>
+              <button type="submit" class="btn btn-success" name="submit">Mettre à jour</button>
             </div>
           </form>
         </div>
