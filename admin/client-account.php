@@ -3,14 +3,14 @@ session_start();
 error_reporting(0);
 include('includes/dbconnection.php');
 
-// Vérifier si admin connecté
+// Vérifier si l'admin est connecté
 if (strlen($_SESSION['imsaid'] == 0)) {
-  header('location:logout.php');
-  exit;
+    header('location:logout.php');
+    exit;
 }
 
 // ============================
-// 1) Gérer l'ajout d'un paiement
+// 1) Gérer l'ajout d'un paiement (indépendant des factures)
 // ============================
 if (isset($_POST['addPayment'])) {
     $custname   = mysqli_real_escape_string($con, $_POST['custname']);
@@ -21,7 +21,7 @@ if (isset($_POST['addPayment'])) {
     if ($amountPaid <= 0) {
         echo "<script>alert('Montant invalide');</script>";
     } else {
-        // Insérer dans tblpayments
+        // Insérer dans tblpayments (PaymentDate, CustomerName, MobileNumber, Amount, Comments)
         $sqlPay = "
           INSERT INTO tblpayments(PaymentDate, CustomerName, MobileNumber, Amount, Comments)
           VALUES(NOW(), '$custname', '$custmobile', '$amountPaid', '$comments')
@@ -39,7 +39,7 @@ if (isset($_POST['addPayment'])) {
 }
 
 // ============================
-// 2) Filtre de recherche
+// 2) Filtre de recherche (nom/téléphone)
 // ============================
 $searchTerm = '';
 $whereCust  = '';
@@ -74,7 +74,7 @@ $subPay = "
 // ============================
 // 5) Liste unifiée des clients
 // ============================
-// On prend tous ceux présents dans tblcustomer union tblpayments
+// On prend tous ceux présents dans tblcustomer UNION tblpayments
 $allClients = "
   SELECT CustomerName, MobileNumber FROM tblcustomer $whereCust
   UNION
@@ -82,9 +82,8 @@ $allClients = "
 ";
 
 // ============================
-// 6) On fait un LEFT JOIN des sommes sur la liste unifiée
+// 6) On fait un LEFT JOIN des sommes sur la liste unifiée => simule FULL JOIN
 // ============================
-// => Cela simule un FULL JOIN
 $sql = "
   SELECT 
     ac.CustomerName AS cName,
@@ -103,7 +102,6 @@ $sql = "
   ORDER BY cName ASC
 ";
 
-// Exécution
 $res = mysqli_query($con, $sql);
 if (!$res) {
     die("Erreur SQL : " . mysqli_error($con));
@@ -169,7 +167,7 @@ if (!$res) {
             <?php echo number_format($solde,2); ?>
           </td>
           <td>
-            <!-- Formulaire pour ajouter un paiement -->
+            <!-- Formulaire pour ajouter un paiement (indépendant) -->
             <form method="post" style="margin:0; display:inline;">
               <input type="hidden" name="custname" value="<?php echo htmlspecialchars($cName); ?>" />
               <input type="hidden" name="custmobile" value="<?php echo htmlspecialchars($cMobile); ?>" />
