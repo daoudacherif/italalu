@@ -9,7 +9,32 @@ if (strlen($_SESSION['imsaid'] == 0)) {
   exit;
 }
 
-// 1) Récupérer un éventuel filtre
+// ==========================
+// 1) Action "Solder le compte" (exemple)
+// ==========================
+if (isset($_POST['solderCompte'])) {
+  $customerName = mysqli_real_escape_string($con, $_POST['custname']);
+  $mobileNumber = mysqli_real_escape_string($con, $_POST['custmobile']);
+
+  $sqlSolder = "
+    UPDATE tblcustomer
+    SET Paid = FinalAmount, Dues = 0
+    WHERE CustomerName = '$customerName'
+      AND MobileNumber = '$mobileNumber'
+  ";
+  $resSolder = mysqli_query($con, $sqlSolder);
+  if ($resSolder) {
+    echo "<script>alert('Le compte du client a été soldé.');</script>";
+  } else {
+    echo "<script>alert('Erreur lors du solder du compte.');</script>";
+  }
+  echo "<script>window.location.href='client-account.php'</script>";
+  exit;
+}
+
+// ==========================
+// 2) Filtre de recherche
+// ==========================
 $searchTerm = '';
 $whereClause = '';
 if (isset($_GET['searchTerm']) && !empty($_GET['searchTerm'])) {
@@ -18,7 +43,9 @@ if (isset($_GET['searchTerm']) && !empty($_GET['searchTerm'])) {
   $whereClause = "WHERE (CustomerName LIKE '%$searchTerm%' OR MobileNumber LIKE '%$searchTerm%')";
 }
 
-// 2) Récupérer la liste des clients + leurs totaux
+// ==========================
+// 3) Requête pour lister les clients + sommes
+// ==========================
 $sql = "
   SELECT 
     CustomerName,
@@ -32,7 +59,6 @@ $sql = "
   ORDER BY CustomerName ASC
 ";
 $res = mysqli_query($con, $sql);
-
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -75,13 +101,23 @@ $res = mysqli_query($con, $sql);
       </thead>
       <tbody>
       <?php
+      // Variables pour accumuler les totaux
+      $grandBilled = 0;
+      $grandPaid   = 0;
+      $grandDue    = 0;
+
       $cnt = 1;
       while ($row = mysqli_fetch_assoc($res)) {
         $customerName = $row['CustomerName'];
         $mobile       = $row['MobileNumber'];
-        $billed       = $row['totalBilled'];
-        $paid         = $row['totalPaid'];
-        $due          = $row['totalDue'];
+        $billed       = floatval($row['totalBilled']);
+        $paid         = floatval($row['totalPaid']);
+        $due          = floatval($row['totalDue']);
+
+        // Accumuler dans les variables globales
+        $grandBilled += $billed;
+        $grandPaid   += $paid;
+        $grandDue    += $due;
         ?>
         <tr>
           <td><?php echo $cnt++; ?></td>
@@ -91,15 +127,39 @@ $res = mysqli_query($con, $sql);
           <td><?php echo number_format($paid,2); ?></td>
           <td><?php echo number_format($due,2); ?></td>
           <td>
-            <!-- Lien pour voir le détail de ce client -->
+            <!-- Lien Détails -->
             <a href="client-account-details.php?name=<?php echo urlencode($customerName); ?>&mobile=<?php echo urlencode($mobile); ?>"
                class="btn btn-info btn-small">Détails</a>
+
+            <!-- Bouton "Solder" si le client a un due > 0 -->
+            <?php if ($due > 0) { ?>
+              <form method="post" style="display:inline;">
+                <input type="hidden" name="custname" value="<?php echo htmlspecialchars($customerName); ?>" />
+                <input type="hidden" name="custmobile" value="<?php echo htmlspecialchars($mobile); ?>" />
+                <button type="submit" name="solderCompte" class="btn btn-success btn-small">
+                  Solder
+                </button>
+              </form>
+            <?php } else { ?>
+              <span style="color: green; font-weight: bold;">Soldé</span>
+            <?php } ?>
           </td>
         </tr>
         <?php
-      }
+      } // end while
       ?>
       </tbody>
+
+      <!-- Ligne de total -->
+      <tfoot>
+        <tr style="font-weight: bold;">
+          <td colspan="3" style="text-align: right;">TOTAL GÉNÉRAL</td>
+          <td><?php echo number_format($grandBilled,2); ?></td>
+          <td><?php echo number_format($grandPaid,2); ?></td>
+          <td><?php echo number_format($grandDue,2); ?></td>
+          <td></td>
+        </tr>
+      </tfoot>
     </table>
 
   </div><!-- container-fluid -->

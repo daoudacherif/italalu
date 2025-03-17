@@ -37,6 +37,7 @@ $res = mysqli_query($con, $sql);
   </div>
   <div class="container-fluid">
     <hr>
+
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
@@ -50,21 +51,42 @@ $res = mysqli_query($con, $sql);
       </thead>
       <tbody>
       <?php
+      // Variables pour cumuler les totaux
+      $sumFinal = 0;
+      $sumPaid  = 0;
+      $sumDues  = 0;
+
       $cnt=1;
       while ($row = mysqli_fetch_assoc($res)) {
+        $finalAmt = floatval($row['FinalAmount']);
+        $paidAmt  = floatval($row['Paid']);
+        $dueAmt   = floatval($row['Dues']);
+
+        // On cumule
+        $sumFinal += $finalAmt;
+        $sumPaid  += $paidAmt;
+        $sumDues  += $dueAmt;
         ?>
         <tr>
           <td><?php echo $cnt++; ?></td>
           <td><?php echo $row['BillingNumber']; ?></td>
           <td><?php echo $row['BillingDate']; ?></td>
-          <td><?php echo number_format($row['FinalAmount'],2); ?></td>
-          <td><?php echo number_format($row['Paid'],2); ?></td>
-          <td><?php echo number_format($row['Dues'],2); ?></td>
+          <td><?php echo number_format($finalAmt,2); ?></td>
+          <td><?php echo number_format($paidAmt,2); ?></td>
+          <td><?php echo number_format($dueAmt,2); ?></td>
         </tr>
         <?php
       }
       ?>
       </tbody>
+      <tfoot>
+        <tr style="font-weight: bold;">
+          <td colspan="3" style="text-align: right;">TOTAL</td>
+          <td><?php echo number_format($sumFinal,2); ?></td>
+          <td><?php echo number_format($sumPaid,2); ?></td>
+          <td><?php echo number_format($sumDues,2); ?></td>
+        </tr>
+      </tfoot>
     </table>
   </div><!-- container-fluid -->
 </div><!-- content -->
