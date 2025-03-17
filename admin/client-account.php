@@ -92,7 +92,7 @@ $res = mysqli_query($con, $sql);
           <td><?php echo number_format($due,2); ?></td>
           <td>
             <!-- Lien pour voir le détail de ce client -->
-            <a href="client-account-detail.php?name=<?php echo urlencode($customerName); ?>&mobile=<?php echo urlencode($mobile); ?>"
+            <a href="client-account-details.php?name=<?php echo urlencode($customerName); ?>&mobile=<?php echo urlencode($mobile); ?>"
                class="btn btn-info btn-small">Détails</a>
           </td>
         </tr>
