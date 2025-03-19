@@ -36,7 +36,7 @@
     <li> <a href="arrival.php"><i class="icon-group"></i> <span>Arrivage</span></a></li>  
     
     <li> <a href="client-account.php"><i class="icon-group"></i> <span>compte client</span></a></li>
-    <li> <a href="client-account-details.php"><i class="icon-group"></i> <span>Détails client</span></a></li>
+    <li> <a href="customer-details.php"><i class="icon-group"></i> <span>Détails client</span></a></li>
     <li class="submenu"> <a href="#"><i class="icon icon-th-list"></i> <span>Rapports</span></a>
       <ul>
         <li><a href="stock-report.php">Rapport de stock</a></li>
