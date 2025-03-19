@@ -3,67 +3,28 @@ session_start();
 error_reporting(0);
 include('includes/dbconnection.php');
 
-// Vérifier si l'admin est connecté
+// Check if admin is logged in
 if (strlen($_SESSION['imsaid'] == 0)) {
   header('location:logout.php');
   exit;
 }
 
-// Tableau qui contiendra les produits du numéro de facture saisi
-$productsList = [];
-
-// ======================
-// 1) RECHERCHE DE FACTURE
-// ======================
-$billingnumberSearch = '';
-if (isset($_POST['searchInvoice'])) {
-  // L'utilisateur a cliqué sur 'Rechercher'
-  $billingnumberSearch = mysqli_real_escape_string($con, $_POST['billingnumberSearch']);
-
-  // Requête pour trouver l'OrderID correspondant à ce numéro
-  $orderQ = mysqli_query($con, "
-    SELECT OrderID
-    FROM tblorders
-    WHERE OrderNumber = '$billingnumberSearch'
-    LIMIT 1
-  ");
-  $orderRow = mysqli_fetch_assoc($orderQ);
-  if ($orderRow) {
-    $orderID = $orderRow['OrderID'];
-
-    // Requête pour charger les produits de cette facture
-    // On récupère ProductID + ProductName
-    $prodQ = mysqli_query($con, "
-      SELECT DISTINCT p.ID, p.ProductName
-      FROM tblorderdetails od
-      JOIN tblproducts p ON p.ID = od.ProductID
-      WHERE od.OrderID = '$orderID'
-    ");
-    while ($rowP = mysqli_fetch_assoc($prodQ)) {
-      $productsList[] = $rowP;
-    }
-  } else {
-    // Aucune facture trouvée
-    echo "<script>alert('Aucune facture trouvée pour ce numéro.');</script>";
-  }
-}
-
-// ======================
-// 2) ENREGISTREMENT DU RETOUR
-// ======================
-if (isset($_POST['submitReturn'])) {
+// ==========================
+// 1) Handle new return submission
+// ==========================
+if (isset($_POST['submit'])) {
   $billingNumber = mysqli_real_escape_string($con, $_POST['billingnumber']);
   $productID     = intval($_POST['productid']);
   $quantity      = intval($_POST['quantity']);
-  $returnPrice   = floatval($_POST['price']);
+  $returnPrice   = floatval($_POST['price']); // <-- new price field
   $returnDate    = $_POST['returndate'];
   $reason        = mysqli_real_escape_string($con, $_POST['reason']);
 
-  // Validation
+  // Basic validation
   if (empty($billingNumber) || $productID <= 0 || $quantity <= 0 || $returnPrice < 0) {
-    echo "<script>alert('Données invalides. Vérifiez la facture, le produit, la quantité, le prix.');</script>";
+    echo "<script>alert('Données invalides. Veuillez vérifier le numéro de facturation, le produit, la quantité et le prix.');</script>";
   } else {
-    // Insert into tblreturns
+    // Insert into tblreturns (including ReturnPrice)
     $sqlInsert = "
       INSERT INTO tblreturns(
         BillingNumber,
@@ -84,15 +45,15 @@ if (isset($_POST['submitReturn'])) {
     $queryInsert = mysqli_query($con, $sqlInsert);
 
     if ($queryInsert) {
-      // Mettre à jour le stock
+      // Update product stock
       $sqlUpdate = "UPDATE tblproducts
-                    SET Stock = Stock + $quantity
-                    WHERE ID='$productID'";
+              SET Stock = Stock + $quantity
+              WHERE ID='$productID'";
       mysqli_query($con, $sqlUpdate);
 
-      echo "<script>alert('Retour enregistré et stock mis à jour!');</script>";
+      echo "<script>alert('Retour enregistré (avec prix personnalisé) et stock mis à jour!');</script>";
     } else {
-      echo "<script>alert('Erreur lors de l\\'insertion du retour.');</script>";
+      echo "<script>alert('Erreur lors de l\'insertion de l\'enregistrement de retour.');</script>";
     }
   }
   // Refresh
@@ -103,7 +64,7 @@ if (isset($_POST['submitReturn'])) {
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <title>Gestion des retours</title>
+  <title>Gestion des stocks | Retours de produits</title>
   <?php include_once('includes/cs.php'); ?>
 </head>
 <body>
@@ -114,100 +75,92 @@ if (isset($_POST['submitReturn'])) {
 
 <div id="content">
   <div id="content-header">
+    <div id="breadcrumb">
+    <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom">
+      <i class="icon-home"></i> Accueil
+    </a>
+    <a href="return.php" class="current">Retours de produits</a>
+    </div>
     <h1>Gérer les retours de produits</h1>
   </div>
 
   <div class="container-fluid">
     <hr>
 
-    <!-- Formulaire de recherche de la facture -->
-    <form method="post" class="form-inline">
-      <label>Numéro de facture :</label>
-      <input type="text" name="billingnumberSearch" 
-             value="<?php echo htmlspecialchars($billingnumberSearch); ?>" 
-             placeholder="ex. 123456789" />
-      <button type="submit" name="searchInvoice" class="btn btn-info">
-        Rechercher
-      </button>
-    </form>
-
-    <hr>
-
-    <!-- Formulaire de retour (avec liste de produits) -->
+    <!-- =========== NEW RETURN FORM =========== -->
     <div class="row-fluid">
       <div class="span12">
         <div class="widget-box">
           <div class="widget-title">
-            <span class="icon"><i class="icon-align-justify"></i></span>
-            <h5>Ajouter un nouveau retour</h5>
+          <span class="icon"><i class="icon-align-justify"></i></span>
+          <h5>Ajouter un nouveau retour</h5>
           </div>
           <div class="widget-content nopadding">
-            <form method="post" class="form-horizontal">
+          <form method="post" class="form-horizontal">
 
-              <!-- On réutilise la facture qu'on vient de rechercher -->
-              <div class="control-group">
-                <label class="control-label">Numéro de facture :</label>
-                <div class="controls">
-                  <input type="text" name="billingnumber"
-                         value="<?php echo htmlspecialchars($billingnumberSearch); ?>"
-                         readonly />
-                </div>
-              </div>
+            <!-- Billing Number -->
+            <div class="control-group">
+            <label class="control-label">Numéro de facture :</label>
+            <div class="controls">
+              <input type="text" name="billingnumber" placeholder="ex. 123456789" required />
+            </div>
+            </div>
 
-              <!-- Return Date -->
-              <div class="control-group">
-                <label class="control-label">Date de retour :</label>
-                <div class="controls">
-                  <input type="date" name="returndate" value="<?php echo date('Y-m-d'); ?>" required />
-                </div>
-              </div>
+            <!-- Return Date -->
+            <div class="control-group">
+            <label class="control-label">Date de retour :</label>
+            <div class="controls">
+              <input type="date" name="returndate" value="<?php echo date('Y-m-d'); ?>" required />
+            </div>
+            </div>
 
-              <!-- Product Selection (seuls les produits de la facture) -->
-              <div class="control-group">
-                <label class="control-label">Sélectionner un produit :</label>
-                <div class="controls">
-                  <select name="productid" required>
-                    <option value="">-- Choisir un produit --</option>
-                    <?php
-                    // Affiche seulement les produits trouvés
-                    foreach ($productsList as $prod) {
-                      echo '<option value="'.$prod['ID'].'">'.$prod['ProductName'].'</option>';
-                    }
-                    ?>
-                  </select>
-                </div>
-              </div>
+            <!-- Product Selection -->
+            <div class="control-group">
+            <label class="control-label">Sélectionner un produit :</label>
+            <div class="controls">
+              <select name="productid" required>
+              <option value="">-- Choisir un produit --</option>
+              <?php
+              // Load products from tblproducts
+              $prodQuery = mysqli_query($con, "SELECT ID, ProductName FROM tblproducts ORDER BY ProductName ASC");
+              while ($prodRow = mysqli_fetch_assoc($prodQuery)) {
+                echo '<option value="'.$prodRow['ID'].'">'.$prodRow['ProductName'].'</option>';
+              }
+              ?>
+              </select>
+            </div>
+            </div>
 
-              <!-- Quantity -->
-              <div class="control-group">
-                <label class="control-label">Quantité retournée :</label>
-                <div class="controls">
-                  <input type="number" name="quantity" min="1" value="1" required />
-                </div>
-              </div>
+            <!-- Quantity -->
+            <div class="control-group">
+            <label class="control-label">Quantité retournée :</label>
+            <div class="controls">
+              <input type="number" name="quantity" min="1" value="1" required />
+            </div>
+            </div>
 
-              <!-- Price -->
-              <div class="control-group">
-                <label class="control-label">Prix :</label>
-                <div class="controls">
-                  <input type="number" name="price" step="any" min="0" value="0" required />
-                </div>
-              </div>
+            <!-- Price (new field) -->
+            <div class="control-group">
+            <label class="control-label">Prix :</label>
+            <div class="controls">
+              <input type="number" name="price" step="any" min="0" value="0" required />
+            </div>
+            </div>
 
-              <!-- Reason -->
-              <div class="control-group">
-                <label class="control-label">Raison (facultatif) :</label>
-                <div class="controls">
-                  <input type="text" name="reason" placeholder="ex. Défaut, Mauvaise taille..." />
-                </div>
-              </div>
+            <!-- Reason -->
+            <div class="control-group">
+            <label class="control-label">Raison (facultatif) :</label>
+            <div class="controls">
+              <input type="text" name="reason" placeholder="ex. Défaut, Mauvaise taille, etc." />
+            </div>
+            </div>
 
-              <div class="form-actions">
-                <button type="submit" name="submitReturn" class="btn btn-success">
-                  Enregistrer le retour
-                </button>
-              </div>
-            </form>
+            <div class="form-actions">
+            <button type="submit" name="submit" class="btn btn-success">
+              Enregistrer le retour
+            </button>
+            </div>
+          </form>
           </div><!-- widget-content nopadding -->
         </div><!-- widget-box -->
       </div>
@@ -215,61 +168,62 @@ if (isset($_POST['submitReturn'])) {
 
     <hr>
 
-    <!-- Liste des retours récents (facultatif) -->
+    <!-- =========== LIST OF RECENT RETURNS =========== -->
     <div class="row-fluid">
       <div class="span12">
         <div class="widget-box">
           <div class="widget-title">
-            <span class="icon"><i class="icon-th"></i></span>
-            <h5>Retours récents</h5>
+          <span class="icon"><i class="icon-th"></i></span>
+          <h5>Retours récents</h5>
           </div>
           <div class="widget-content nopadding">
-            <table class="table table-bordered data-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Numéro de facture</th>
-                  <th>Date de retour</th>
-                  <th>Produit</th>
-                  <th>Quantité</th>
-                  <th>Prix</th>
-                  <th>Raison</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php
-                $sqlReturns = "
-                  SELECT r.ID as returnID,
-                         r.BillingNumber,
-                         r.ReturnDate,
-                         r.Quantity,
-                         r.Reason,
-                         r.ReturnPrice,
-                         p.ProductName
-                  FROM tblreturns r
-                  LEFT JOIN tblproducts p ON p.ID = r.ProductID
-                  ORDER BY r.ID DESC
-                  LIMIT 50
-                ";
-                $returnsQuery = mysqli_query($con, $sqlReturns);
-                $cnt = 1;
-                while ($row = mysqli_fetch_assoc($returnsQuery)) {
-                  ?>
-                  <tr>
-                    <td><?php echo $cnt; ?></td>
-                    <td><?php echo $row['BillingNumber']; ?></td>
-                    <td><?php echo $row['ReturnDate']; ?></td>
-                    <td><?php echo $row['ProductName']; ?></td>
-                    <td><?php echo $row['Quantity']; ?></td>
-                    <td><?php echo number_format($row['ReturnPrice'],2); ?></td>
-                    <td><?php echo $row['Reason']; ?></td>
-                  </tr>
-                  <?php
-                  $cnt++;
-                }
-                ?>
-              </tbody>
-            </table>
+          <table class="table table-bordered data-table">
+            <thead>
+            <tr>
+              <th>#</th>
+              <th>Numéro de facture</th>
+              <th>Date de retour</th>
+              <th>Produit</th>
+              <th>Quantité</th>
+              <th>Prix</th>
+              <th>Raison</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php
+            // Join tblreturns with tblproducts to display product name
+            $sqlReturns = "
+              SELECT r.ID as returnID,
+                 r.BillingNumber,
+                 r.ReturnDate,
+                 r.Quantity,
+                 r.Reason,
+                 r.ReturnPrice,
+                 p.ProductName
+              FROM tblreturns r
+              LEFT JOIN tblproducts p ON p.ID = r.ProductID
+              ORDER BY r.ID DESC
+              LIMIT 50
+            ";
+            $returnsQuery = mysqli_query($con, $sqlReturns);
+            $cnt = 1;
+            while ($row = mysqli_fetch_assoc($returnsQuery)) {
+              ?>
+              <tr>
+                <td><?php echo $cnt; ?></td>
+                <td><?php echo $row['BillingNumber']; ?></td>
+                <td><?php echo $row['ReturnDate']; ?></td>
+                <td><?php echo $row['ProductName']; ?></td>
+                <td><?php echo $row['Quantity']; ?></td>
+                <td><?php echo number_format($row['ReturnPrice'],2); ?></td>
+                <td><?php echo $row['Reason']; ?></td>
+              </tr>
+              <?php
+              $cnt++;
+            }
+            ?>
+            </tbody>
+          </table>
           </div><!-- widget-content nopadding -->
         </div><!-- widget-box -->
       </div>
@@ -280,7 +234,14 @@ if (isset($_POST['submitReturn'])) {
 
 <?php include_once('includes/footer.php'); ?>
 
+<!-- Scripts -->
 <script src="js/jquery.min.js"></script>
+<script src="js/jquery.ui.custom.js"></script>
 <script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.uniform.js"></script>
+<script src="js/select2.min.js"></script>
+<script src="js/jquery.dataTables.min.js"></script>
+<script src="js/matrix.js"></script>
+<script src="js/matrix.tables.js"></script>
 </body>
 </html>
