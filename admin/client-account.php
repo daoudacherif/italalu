@@ -72,6 +72,7 @@ $res = mysqli_query($con, $sql);
           <th>Total Facturé</th>
           <th>Total Payé</th>
           <th>Reste à Payer</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -101,6 +102,10 @@ $res = mysqli_query($con, $sql);
           <td><?php echo number_format($billed,2); ?></td>
           <td><?php echo number_format($paid,2); ?></td>
           <td><?php echo number_format($due,2); ?></td>
+          <td>
+            <a href="client-account-details.php?name=<?php echo urlencode($customerName); ?>&mobile=<?php echo urlencode($mobile); ?>" 
+               class="btn btn-info btn-small">Détails</a>
+          </td>
         </tr>
         <?php
       } // end while
@@ -114,6 +119,7 @@ $res = mysqli_query($con, $sql);
           <td><?php echo number_format($grandBilled,2); ?></td>
           <td><?php echo number_format($grandPaid,2); ?></td>
           <td><?php echo number_format($grandDue,2); ?></td>
+          <td></td>
         </tr>
       </tfoot>
     </table>
