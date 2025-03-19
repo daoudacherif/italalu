@@ -24,12 +24,12 @@ while ($rowProd = mysqli_fetch_assoc($allProdQuery)) {
 if (isset($_POST['addtocart'])) {
   $productId = intval($_POST['productid']);
   $quantity  = intval($_POST['quantity']);
-  $price     = floatval($_POST['price']);  // <-- prix saisi manuellement
+  $price     = floatval($_POST['price']);  // prix saisi ou calculé
 
   if ($quantity <= 0)  $quantity = 1;
   if ($price    < 0)  $price    = 0;
 
-  // Vérifier si ce produit est déjà dans le panier
+  // Vérifier si ce produit est déjà dans le panier (IsCheckOut=0)
   $checkCart = mysqli_query($con, "
     SELECT ID, ProductQty 
     FROM tblcart 
@@ -82,21 +82,23 @@ if (isset($_POST['applyDiscount'])) {
 $discount = isset($_SESSION['discount']) ? $_SESSION['discount'] : 0;
 
 // ==========================
-// 4) Validation du panier (checkout) & création de facture
+// 4) Validation du panier (checkout) & création de commande
 // ==========================
 if (isset($_POST['submit'])) {
-  $custname      = $_POST['customername'];
-  $custmobilenum = $_POST['mobilenumber'];
-  $modepayment   = $_POST['modepayment'];
+  $custname      = mysqli_real_escape_string($con, $_POST['customername']);
+  $custmobilenum = mysqli_real_escape_string($con, $_POST['mobilenumber']);
+  $modepayment   = mysqli_real_escape_string($con, $_POST['modepayment']);
 
   // Recalculer le total du panier
   $cartQuery = mysqli_query($con, "
-    SELECT ProductQty, Price 
+    SELECT ID, ProductId, ProductQty, Price 
     FROM tblcart
     WHERE IsCheckOut=0
   ");
   $grandTotal = 0;
+  $cartItems = [];
   while ($row = mysqli_fetch_assoc($cartQuery)) {
+    $cartItems[] = $row;
     $grandTotal += ($row['ProductQty'] * $row['Price']);
   }
 
@@ -104,38 +106,78 @@ if (isset($_POST['submit'])) {
   $netTotal = $grandTotal - $discount;
   if ($netTotal < 0) $netTotal = 0;
 
-  // Générer un numéro de facture unique
-  $billingnum = mt_rand(100000000, 999999999);
+  // Générer un OrderNumber unique
+  $orderNumber = mt_rand(100000000, 999999999);
 
-  // Marquer le panier comme validé et insérer dans tblcustomer
-  $query  = "UPDATE tblcart 
-             SET BillingId='$billingnum', IsCheckOut=1 
-             WHERE IsCheckOut=0;";
-  $query .= "INSERT INTO tblcustomer(
-               BillingNumber,
-               CustomerName,
-               MobileNumber,
-               ModeofPayment,
-               FinalAmount
-             ) VALUES(
-               '$billingnum',
-               '$custname',
-               '$custmobilenum',
-               '$modepayment',
-               '$netTotal'
-             );";
+  // Insérer la commande dans tblorders
+  $orderDate = date('Y-m-d');
+  $subtotal  = $grandTotal;
+  $tax       = 0; // tu peux calculer la TVA si besoin
+  $paid      = 0; // si tu gères un paiement direct
+  $dues      = $netTotal; // s'il reste tout à payer
 
-  $result = mysqli_multi_query($con, $query);
-  if ($result) {
-    $_SESSION['invoiceid'] = $billingnum;
-    unset($_SESSION['discount']); // on réinitialise la remise
-
-    echo "<script>alert('Facture créée avec succès. Numéro : $billingnum');</script>";
-    echo "<script>window.location.href='invoice.php'</script>";
+  $sqlOrder = "
+    INSERT INTO tblorders(
+      OrderNumber,
+      OrderDate,
+      RecipientName,
+      RecipientContact,
+      Subtotal,
+      Tax,
+      Discount,
+      NetTotal,
+      Paid,
+      Dues,
+      PaymentMethod
+    ) VALUES(
+      '$orderNumber',
+      '$orderDate',
+      '$custname',
+      '$custmobilenum',
+      '$subtotal',
+      '$tax',
+      '$discount',
+      '$netTotal',
+      '$paid',
+      '$dues',
+      '$modepayment'
+    )
+  ";
+  $orderRes = mysqli_query($con, $sqlOrder);
+  if (!$orderRes) {
+    echo "<script>alert('Erreur lors de la création de la commande');</script>";
     exit;
-  } else {
-    echo "<script>alert('Erreur lors du paiement');</script>";
   }
+
+  // Récupérer l'ID de la commande qu'on vient d'insérer
+  $orderID = mysqli_insert_id($con);
+
+  // Pour chaque article du panier, insérer une ligne dans tblorderdetails
+  foreach ($cartItems as $item) {
+    $prodID = $item['ProductId'];
+    $qty    = $item['ProductQty'];
+    $ppu    = $item['Price'];
+    $lineTotal = $qty * $ppu;
+
+    $sqlDetail = "
+      INSERT INTO tblorderdetails(OrderID, ProductID, Price, Qty, Total)
+      VALUES('$orderID', '$prodID', '$ppu', '$qty', '$lineTotal')
+    ";
+    mysqli_query($con, $sqlDetail);
+  }
+
+  // Marquer les articles du panier comme validés (IsCheckOut=1)
+  mysqli_query($con, "UPDATE tblcart SET IsCheckOut=1 WHERE IsCheckOut=0");
+
+  // Nettoyage de la remise
+  unset($_SESSION['discount']);
+
+  // Confirmation
+  echo "<script>alert('Commande créée avec succès. Numéro : $orderNumber');</script>";
+  // Redirection, par exemple vers une page invoice
+  $_SESSION['invoiceid'] = $orderNumber;
+  echo "<script>window.location.href='invoice.php'</script>";
+  exit;
 }
 ?>
 <!DOCTYPE html>
@@ -169,7 +211,6 @@ if (isset($_POST['submit'])) {
       <div class="span12">
         <form method="get" action="cart.php" class="form-inline">
           <label>Rechercher des produits :</label>
-          <!-- Champ de saisie relié à une datalist -->
           <input type="text" name="searchTerm" class="span3"
                  placeholder="Nom du produit..." list="productsList" />
 
@@ -178,7 +219,6 @@ if (isset($_POST['submit'])) {
             <?php
             // Générer <option> pour chaque nom de produit
             foreach ($productNames as $pname) {
-              // Sécuriser l'affichage avec htmlspecialchars
               echo '<option value="' . htmlspecialchars($pname) . '"></option>';
             }
             ?>
@@ -239,7 +279,6 @@ if (isset($_POST['submit'])) {
                     <td><?php echo $row['ModelNumber']; ?></td>
                     <td><?php echo $row['Price']; ?></td>
                     <td>
-                      <!-- Form pour ajouter au panier -->
                       <form method="post" action="cart.php" style="margin:0;">
                         <input type="hidden" name="productid" value="<?php echo $row['ID']; ?>" />
                         <input type="number" name="price" step="any" 
@@ -286,14 +325,14 @@ if (isset($_POST['submit'])) {
           <div class="control-group">
             <label class="control-label">Nom du client :</label>
             <div class="controls">
-              <input type="text" class="span11" id="customername" name="customername" required />
+              <input type="text" class="span11" name="customername" required />
             </div>
           </div>
           <div class="control-group">
             <label class="control-label">Numéro de mobile du client :</label>
             <div class="controls">
-              <input type="text" class="span11" id="mobilenumber" name="mobilenumber" required
-                     maxlength="10" pattern="[0-9]+" />
+              <input type="text" class="span11" name="mobilenumber" required
+                     maxlength="10" pattern=\"[0-9]+\" />
             </div>
           </div>
           <div class="control-group">
@@ -305,12 +344,11 @@ if (isset($_POST['submit'])) {
           </div>
           <div class="text-center">
             <button class="btn btn-primary" type="submit" name="submit">
-              Paiement & Créer une facture
+              Paiement & Créer une commande
             </button>
           </div>
         </form>
 
-        <!-- Tableau du panier -->
         <div class="widget-box">
           <div class="widget-title">
             <span class="icon"><i class="icon-th"></i></span>
@@ -320,7 +358,7 @@ if (isset($_POST['submit'])) {
             <table class="table table-bordered" style="font-size: 15px">
               <thead>
                 <tr>
-                  <th>N°</th>
+                  <th>#</th>
                   <th>Nom du produit</th>
                   <th>Quantité</th>
                   <th>Prix (par unité)</th>
@@ -330,7 +368,6 @@ if (isset($_POST['submit'])) {
               </thead>
               <tbody>
                 <?php
-                // Récupérer les articles du panier (IsCheckOut=0)
                 $ret = mysqli_query($con, "
                   SELECT 
                     tblcart.ID as cid,
@@ -368,7 +405,6 @@ if (isset($_POST['submit'])) {
                     <?php
                     $cnt++;
                   }
-                  // Affichage du total + remise + net
                   $netTotal = $grandTotal - $discount;
                   if ($netTotal < 0) $netTotal = 0;
                   ?>
