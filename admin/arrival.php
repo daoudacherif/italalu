@@ -62,7 +62,7 @@ if (isset($_POST['submit'])) {
         <a href="dashboard.php" title="Go to Home" class="tip-bottom">
           <i class="icon-home"></i> Home
         </a>
-        <a href="product-arrivals.php" class="current">Product Arrivals</a>
+        <a href="arrival.php" class="current">Product Arrivals</a>
       </div>
       <h1>Manage Product Arrivals (Stock In)</h1>
     </div>
@@ -166,8 +166,11 @@ if (isset($_POST['submit'])) {
                           LIMIT 50
                         ";
                         $arrivalsQuery = mysqli_query($con, $sqlArrivals);
+
                         $cnt = 1;
+                        $sumQty = 0;  // Pour cumuler la quantité
                         while ($row = mysqli_fetch_assoc($arrivalsQuery)) {
+                            $sumQty += $row['Quantity']; // on additionne
                             ?>
                             <tr>
                               <td><?php echo $cnt; ?></td>
@@ -181,6 +184,14 @@ if (isset($_POST['submit'])) {
                         }
                         ?>
                       </tbody>
+                      <!-- FOOTER avec la somme des quantités -->
+                      <tfoot>
+                        <tr style="font-weight: bold;">
+                          <td colspan="3" style="text-align:right;">Solde Total</td>
+                          <td><?php echo $sumQty; ?></td>
+                          <td></td>
+                        </tr>
+                      </tfoot>
                     </table>
                   </div><!-- widget-content nopadding -->
                 </div><!-- widget-box -->
