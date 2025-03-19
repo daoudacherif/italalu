@@ -89,6 +89,11 @@ $res = mysqli_query($con, $sql);
       </tfoot>
     </table>
   </div><!-- container-fluid -->
+  <div class="container-fluid">
+  <a href="client-account.php" class="btn btn-secondary" style="margin-bottom: 15px;">← Retour</a>
+
+  <table class="table table-bordered table-striped">
+
 </div><!-- content -->
 
 <?php include_once('includes/footer.php'); ?>
