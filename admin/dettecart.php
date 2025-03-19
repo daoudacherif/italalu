@@ -3,7 +3,7 @@ session_start();
 error_reporting(0);
 include('includes/dbconnection.php');
 
-// Vérifier si l'admin est connecté
+// Vérifie que l'admin est connecté
 if (strlen($_SESSION['imsaid'] == 0)) {
   header('location:logout.php');
   exit;
@@ -83,6 +83,7 @@ if (isset($_POST['applyDiscount'])) {
   echo "<script>window.location.href='dettecart.php'</script>";
   exit;
 }
+// Valeur par défaut si non définie
 $discount = isset($_SESSION['discount']) ? $_SESSION['discount'] : 0;
 
 // ==========================
@@ -98,14 +99,12 @@ if (isset($_POST['submit'])) {
 
   // Calcul du total du panier
   $cartQuery = mysqli_query($con, "
-    SELECT ID, ProductId, ProductQty, Price 
+    SELECT ProductQty, Price 
     FROM tblcart
     WHERE IsCheckOut=0
   ");
   $grandTotal = 0;
-  $cartItems = [];
   while ($row = mysqli_fetch_assoc($cartQuery)) {
-    $cartItems[] = $row;
     $grandTotal += ($row['ProductQty'] * $row['Price']);
   }
 
@@ -121,78 +120,47 @@ if (isset($_POST['submit'])) {
     $dues = 0;
   }
 
-  // Numéro de commande unique
-  $orderNumber = mt_rand(100000000, 999999999);
+  // Numéro de facture unique
+  $billingnum = mt_rand(100000000, 999999999);
 
-  // Insérer la commande dans tblorders
-  $orderDate = date('Y-m-d');
-  $subtotal  = $grandTotal;
-  $tax       = 0;       // si tu veux calculer la TVA
-  $paid      = $paidNow; 
-  $dues      = $dues;    // calculé ci-dessus
+  // 1) On "check out" tous les items du panier
+  $query  = "UPDATE tblcart 
+             SET BillingId='$billingnum', IsCheckOut=1 
+             WHERE IsCheckOut=0;";
 
-  $sqlOrder = "
-    INSERT INTO tblorders(
-      OrderNumber,
-      OrderDate,
-      RecipientName,
-      RecipientContact,
-      Subtotal,
-      Tax,
-      Discount,
-      NetTotal,
-      Paid,
-      Dues,
-      PaymentMethod
-    ) VALUES(
-      '$orderNumber',
-      '$orderDate',
-      '$custname',
-      '$custmobilenum',
-      '$subtotal',
-      '$tax',
-      '$discount',
-      '$netTotal',
-      '$paid',
-      '$dues',
-      '$modepayment'
-    )
-  ";
-  $orderRes = mysqli_query($con, $sqlOrder);
-  if (!$orderRes) {
-    echo "<script>alert('Erreur lors de la création de la commande');</script>";
+  // 2) On insère la facture dans tblcustomer
+  $query .= "INSERT INTO tblcustomer(
+               BillingNumber,
+               CustomerName,
+               MobileNumber,
+               ModeOfPayment,
+               BillingDate,
+               FinalAmount,
+               Paid,
+               Dues
+             ) VALUES(
+               '$billingnum',
+               '$custname',
+               '$custmobilenum',
+               '$modepayment',
+               NOW(),
+               '$netTotal',
+               '$paidNow',
+               '$dues'
+             );";
+
+  // Exécute la requête multiple
+  $result = mysqli_multi_query($con, $query);
+  if ($result) {
+    $_SESSION['invoiceid'] = $billingnum;
+    unset($_SESSION['discount']); // réinitialiser la remise
+
+    echo "<script>alert('Facture créée avec succès ! Numéro : $billingnum');</script>";
+    echo "<script>window.location.href='dettecart.php'</script>";
     exit;
+  } else {
+    echo "<script>alert('Erreur lors de la facturation');</script>";
   }
-
-  // Récupérer l'ID de la commande
-  $orderID = mysqli_insert_id($con);
-
-  // Pour chaque article du panier, insérer dans tblorderdetails
-  foreach ($cartItems as $item) {
-    $prodID = $item['ProductId'];
-    $qty    = $item['ProductQty'];
-    $ppu    = $item['Price'];
-    $lineTotal = $qty * $ppu;
-
-    $sqlDetail = "
-      INSERT INTO tblorderdetails(OrderID, ProductID, Price, Qty, Total)
-      VALUES('$orderID', '$prodID', '$ppu', '$qty', '$lineTotal')
-    ";
-    mysqli_query($con, $sqlDetail);
-  }
-
-  // Marquer le panier comme validé (IsCheckOut=1)
-  mysqli_query($con, "UPDATE tblcart SET IsCheckOut=1 WHERE IsCheckOut=0");
-
-  // Nettoyer la remise
-  unset($_SESSION['discount']);
-
-  // Confirmation
-  echo "<script>alert('Commande créée avec succès ! Numéro : $orderNumber');</script>";
-  // Redirection
-  $_SESSION['invoiceid'] = $orderNumber;
-  echo "<script>window.location.href='dettecart.php'</script>";
-  exit;
 }
 ?>
 <!DOCTYPE html>
@@ -226,10 +194,11 @@ if (isset($_POST['submit'])) {
       <div class="span12">
         <form method="get" action="dettecart.php" class="form-inline">
           <label>Rechercher des Produits :</label>
+          <!-- Champ de saisie relié à la datalist -->
           <input type="text" name="searchTerm" class="span3"
                  placeholder="Nom du produit ou modèle..." list="productsList" />
 
-          <!-- Datalist pour l'auto-complétion -->
+          <!-- La datalist avec tous les noms de produits -->
           <datalist id="productsList">
             <?php
             foreach ($productNames as $pname) {
@@ -274,7 +243,7 @@ if (isset($_POST['submit'])) {
                   <th>Marque</th>
                   <th>Modèle</th>
                   <th>Prix par Défaut</th>
-                  <th>Prix Perso</th>
+                  <th>Prix Personnalisé</th>
                   <th>Quantité</th>
                   <th>Ajouter</th>
                 </tr>
@@ -293,6 +262,7 @@ if (isset($_POST['submit'])) {
                   <td><?php echo $row['ModelNumber']; ?></td>
                   <td><?php echo $row['Price']; ?></td>
                   <td>
+                    <!-- Form pour ajouter au panier -->
                     <form method="post" action="dettecart.php" style="margin:0;">
                       <input type="hidden" name="productid" value="<?php echo $row['ID']; ?>" />
                       <input type="number" name="price" step="any" 
@@ -334,7 +304,7 @@ if (isset($_POST['submit'])) {
         <hr>
 
         <!-- CHECKOUT FORM (infos client + Montant Payé) -->
-        <form method="post" class="form-horizontal">
+        <form method="post" class="form-horizontal" name="submit">
           <div class="control-group">
             <label class="control-label">Nom du Client :</label>
             <div class="controls">
@@ -345,7 +315,7 @@ if (isset($_POST['submit'])) {
             <label class="control-label">Numéro de Mobile :</label>
             <div class="controls">
               <input type="text" class="span11" name="mobilenumber" required
-                     maxlength="10" pattern=\"[0-9]+\"/>
+                     maxlength="10" pattern="[0-9]+"/>
             </div>
           </div>
           <div class="control-group">
@@ -368,7 +338,7 @@ if (isset($_POST['submit'])) {
 
           <div class="form-actions" style="text-align:center;">
             <button class="btn btn-primary" type="submit" name="submit">
-              Valider & Créer la Commande
+              Valider & Créer la Facture
             </button>
           </div>
         </form>
@@ -477,15 +447,16 @@ if (isset($_POST['submit'])) {
   </div><!-- container-fluid -->
 </div><!-- content -->
 
+<!-- Footer -->
 <?php include_once('includes/footer.php'); ?>
 <!-- Scripts -->
-<script src=\"js/jquery.min.js\"></script>
-<script src=\"js/jquery.ui.custom.js\"></script>
-<script src=\"js/bootstrap.min.js\"></script>
-<script src=\"js/jquery.uniform.js\"></script>
-<script src=\"js/select2.min.js\"></script>
-<script src=\"js/jquery.dataTables.min.js\"></script>
-<script src=\"js/matrix.js\"></script>
-<script src=\"js/matrix.tables.js\"></script>
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery.ui.custom.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.uniform.js"></script>
+<script src="js/select2.min.js"></script>
+<script src="js/jquery.dataTables.min.js"></script>
+<script src="js/matrix.js"></script>
+<script src="js/matrix.tables.js"></script>
 </body>
 </html>
