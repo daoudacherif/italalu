@@ -3,7 +3,7 @@
 <head>
 <title>Système de Gestion des Inventaires || Ajouter une Sous-Catégorie</title>
 <?php include_once('includes/cs.php');
-include('includes/dbconnection.php');
+
 ?>
 </head>
 <body>
