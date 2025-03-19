@@ -13,33 +13,31 @@ if (strlen($_SESSION['imsaid'] == 0)) {
 $productsList = [];
 
 // ======================
-// 1) RECHERCHE DE FACTURE (tblcustomer)
+// 1) RECHERCHE DE FACTURE
 // ======================
 $billingnumberSearch = '';
 if (isset($_POST['searchInvoice'])) {
   // L'utilisateur a cliqué sur 'Rechercher'
   $billingnumberSearch = mysqli_real_escape_string($con, $_POST['billingnumberSearch']);
 
-  // Requête pour trouver l'ID du client/facture dans tblcustomer
-  $custQ = mysqli_query($con, "
-    SELECT ID
-    FROM tblcustomer
-    WHERE BillingNumber = '$billingnumberSearch'
+  // Requête pour trouver l'OrderID correspondant à ce numéro
+  $orderQ = mysqli_query($con, "
+    SELECT OrderID
+    FROM tblorders
+    WHERE OrderNumber = '$billingnumberSearch'
     LIMIT 1
   ");
-  $custRow = mysqli_fetch_assoc($custQ);
-  if ($custRow) {
-    $customerID = $custRow['ID'];
+  $orderRow = mysqli_fetch_assoc($orderQ);
+  if ($orderRow) {
+    $orderID = $orderRow['OrderID'];
 
     // Requête pour charger les produits de cette facture
-    // On récupère ProductID + ProductName depuis tblcart + tblproducts
-    // On suppose c.IsCheckOut=1 signifie “facture validée”
+    // On récupère ProductID + ProductName
     $prodQ = mysqli_query($con, "
       SELECT DISTINCT p.ID, p.ProductName
-      FROM tblcart c
-      JOIN tblproducts p ON p.ID = c.ProductId
-      WHERE c.BillingId = '$customerID'
-        AND c.IsCheckOut = 1
+      FROM tblorderdetails od
+      JOIN tblproducts p ON p.ID = od.ProductID
+      WHERE od.OrderID = '$orderID'
     ");
     while ($rowP = mysqli_fetch_assoc($prodQ)) {
       $productsList[] = $rowP;
@@ -122,7 +120,7 @@ if (isset($_POST['submitReturn'])) {
   <div class="container-fluid">
     <hr>
 
-    <!-- Formulaire de recherche de la facture (BillingNumber) -->
+    <!-- Formulaire de recherche de la facture -->
     <form method="post" class="form-inline">
       <label>Numéro de facture :</label>
       <input type="text" name="billingnumberSearch" 
