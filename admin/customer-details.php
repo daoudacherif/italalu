@@ -3,22 +3,22 @@ session_start();
 error_reporting(0);
 include('includes/dbconnection.php');
 
-// Vérifier si l'admin est connecté
+// Check admin login
 if (strlen($_SESSION['imsaid'] == 0)) {
-  header('location:logout.php');
-  exit;
+    header('location:logout.php');
+    exit;
 }
 
-// 1) Gérer la soumission d'un paiement partiel
+// 1) Handle partial payment submission
 if (isset($_POST['addPayment'])) {
-    $oid       = intval($_POST['oid']);        // ID from tblorders
+    $cid       = intval($_POST['cid']);        // ID from tblcustomer
     $payAmount = floatval($_POST['payAmount']); // The additional payment
 
     if ($payAmount <= 0) {
-        echo "<script>alert('Montant invalide. Doit être > 0.');</script>";
+        echo "<script>alert('Invalid payment amount. Must be > 0.');</script>";
     } else {
         // Fetch current Paid & Dues for this row
-        $sql = "SELECT Paid, Dues FROM tblorders WHERE OrderID='$oid' LIMIT 1";
+        $sql = "SELECT Paid, Dues FROM tblcustomer WHERE ID='$cid' LIMIT 1";
         $res = mysqli_query($con, $sql);
         if (mysqli_num_rows($res) > 0) {
             $row     = mysqli_fetch_assoc($res);
@@ -33,25 +33,25 @@ if (isset($_POST['addPayment'])) {
             }
 
             // Update the record
-            $update = "UPDATE tblorders 
+            $update = "UPDATE tblcustomer 
                        SET Paid='$newPaid', Dues='$newDues'
-                       WHERE OrderID='$oid'";
+                       WHERE ID='$cid'";
             mysqli_query($con, $update);
 
-            echo "<script>alert('Paiement mis à jour avec succès !');</script>";
+            echo "<script>alert('Payment updated successfully!');</script>";
         } else {
-            echo "<script>alert('Commande introuvable.');</script>";
+            echo "<script>alert('Customer record not found.');</script>";
         }
     }
     // Refresh the page
-    echo "<script>window.location.href='order-details.php'</script>";
+    echo "<script>window.location.href='customer-details.php'</script>";
     exit;
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-    <title>Système de gestion des stocks | Détails des commandes</title>
+    <title>Inventory Management System | Customer Details</title>
     <?php include_once('includes/cs.php'); ?>
 </head>
 <body>
@@ -62,12 +62,12 @@ if (isset($_POST['addPayment'])) {
 <div id="content">
   <div id="content-header">
     <div id="breadcrumb">
-      <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom">
-        <i class="icon-home"></i> Accueil
+      <a href="dashboard.php" title="Go to Home" class="tip-bottom">
+        <i class="icon-home"></i> Home
       </a>
-      <a href="order-details.php" class="current">Détails des commandes</a>
+      <a href="customer-details.php" class="current">Customer Details</a>
     </div>
-    <h1>Commandes / Factures</h1>
+    <h1>Customer Details / Invoices</h1>
   </div>
 
   <div class="container-fluid">
@@ -78,22 +78,22 @@ if (isset($_POST['addPayment'])) {
         <div class="widget-box">
           <div class="widget-title">
             <span class="icon"><i class="icon-th"></i></span>
-            <h5>Toutes les commandes</h5>
+            <h5>All Invoices</h5>
           </div>
           <div class="widget-content nopadding">
 
             <table class="table table-bordered data-table">
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>Numéro de Commande</th>
-                  <th>Nom du client</th>
-                  <th>Numéro de mobile</th>
-                  <th>Mode de paiement</th>
-                  <th>Date de commande</th>
-                  <th>Montant final</th>
-                  <th>Payé</th>
-                  <th>Reste dû</th>
+                  <th>S.NO</th>
+                  <th>Invoice #</th>
+                  <th>Customer Name</th>
+                  <th>Mobile Number</th>
+                  <th>Payment Mode</th>
+                  <th>Billing Date</th>
+                  <th>Final Amount</th>
+                  <th>Paid</th>
+                  <th>Dues</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -103,46 +103,36 @@ if (isset($_POST['addPayment'])) {
                 $totalPaid = 0;
                 $totalDues = 0;
 
-                // Fetch all rows from tblorders
-                $ret = mysqli_query($con, "SELECT * FROM tblorders ORDER BY OrderID DESC");
+                // Fetch all rows from tblcustomer
+                $ret = mysqli_query($con, "SELECT * FROM tblcustomer ORDER BY ID DESC");
                 $cnt = 1;
                 while ($row = mysqli_fetch_array($ret)) {
                     // Accumulate for totals
-                    $thisPaid = floatval($row['Paid']);
-                    $thisDues = floatval($row['Dues']);
-                    $totalPaid += $thisPaid;
-                    $totalDues += $thisDues;
-
-                    $orderID   = $row['OrderID'];
-                    $orderNum  = $row['OrderNumber'];
-                    $recipient = $row['RecipientName'];
-                    $contact   = $row['RecipientContact'];
-                    $method    = $row['PaymentMethod'];
-                    $orderDate = $row['OrderDate'];
-                    $netTotal  = floatval($row['NetTotal']);
+                    $totalPaid += floatval($row['Paid']);
+                    $totalDues += floatval($row['Dues']);
                 ?>
                     <tr class="gradeX">
                       <td><?php echo $cnt; ?></td>
-                      <td><?php echo $orderNum; ?></td>
-                      <td><?php echo $recipient; ?></td>
-                      <td><?php echo $contact; ?></td>
-                      <td><?php echo $method; ?></td>
-                      <td><?php echo $orderDate; ?></td>
-                      <td><?php echo number_format($netTotal, 2); ?></td>
-                      <td><?php echo number_format($thisPaid, 2); ?></td>
-                      <td><?php echo number_format($thisDues, 2); ?></td>
+                      <td><?php echo $row['BillingNumber']; ?></td>
+                      <td><?php echo $row['CustomerName']; ?></td>
+                      <td><?php echo $row['MobileNumber']; ?></td>
+                      <td><?php echo $row['ModeofPayment']; ?></td>
+                      <td><?php echo $row['BillingDate']; ?></td>
+                      <td><?php echo number_format($row['FinalAmount'], 2); ?></td>
+                      <td><?php echo number_format($row['Paid'], 2); ?></td>
+                      <td><?php echo number_format($row['Dues'], 2); ?></td>
                       <td>
-                        <?php if ($thisDues > 0) { ?>
+                        <?php if ($row['Dues'] > 0) { ?>
                           <!-- Inline form to add partial payment -->
                           <form method="post" style="margin:0; display:inline;">
-                            <input type="hidden" name="oid" value="<?php echo $orderID; ?>" />
+                            <input type="hidden" name="cid" value="<?php echo $row['ID']; ?>" />
                             <input type="number" name="payAmount" step="any" placeholder="Pay" style="width:60px;" />
                             <button type="submit" name="addPayment" class="btn btn-info btn-mini">
                               Add Payment
                             </button>
                           </form>
                         <?php } else { ?>
-                          <span style="color: green; font-weight: bold;">Payé en intégralité</span>
+                          <span style="color: green; font-weight: bold;">Fully Paid</span>
                         <?php } ?>
                       </td>
                     </tr>
@@ -154,9 +144,9 @@ if (isset($_POST['addPayment'])) {
               <!-- Add a final row for totals -->
               <tfoot>
                 <tr>
-                  <!-- We'll merge the first 6 columns -->
+                  <!-- We'll merge the first 7 columns -->
                   <th colspan="7" style="text-align: right; font-weight: bold;">
-                    Totaux:
+                    Totals:
                   </th>
                   <!-- Display the total of the Paid column -->
                   <th style="font-weight: bold;">
