@@ -28,7 +28,6 @@ if (isset($_POST['submit'])) {
 
         if ($queryInsert) {
             // Update tblproducts stock
-            // (Stock = Stock + quantity)
             $sqlUpdate = "UPDATE tblproducts
                           SET Stock = Stock + $quantity
                           WHERE ID='$productID'";
@@ -39,7 +38,6 @@ if (isset($_POST['submit'])) {
             echo "<script>alert('Error inserting arrival record');</script>";
         }
     }
-    // Refresh or redirect as needed
     echo "<script>window.location.href='arrival.php'</script>";
     exit;
 }
@@ -150,16 +148,22 @@ if (isset($_POST['submit'])) {
                           <th>#</th>
                           <th>Arrival Date</th>
                           <th>Product</th>
-                          <th>Quantity</th>
+                          <th>Qty</th>
+                          <th>Unit Price</th>
+                          <th>Total Price</th>
                           <th>Comments</th>
                         </tr>
                       </thead>
                       <tbody>
                         <?php
-                        // Join tblproductarrivals with tblproducts to show product name
+                        // Join tblproductarrivals with tblproducts to get price
                         $sqlArrivals = "
-                          SELECT a.ID as arrivalID, a.ArrivalDate, a.Quantity, a.Comments,
-                                 p.ProductName
+                          SELECT a.ID as arrivalID,
+                                 a.ArrivalDate,
+                                 a.Quantity,
+                                 a.Comments,
+                                 p.ProductName,
+                                 p.Price as UnitPrice
                           FROM tblproductarrivals a
                           LEFT JOIN tblproducts p ON p.ID = a.ProductID
                           ORDER BY a.ID DESC
@@ -168,15 +172,20 @@ if (isset($_POST['submit'])) {
                         $arrivalsQuery = mysqli_query($con, $sqlArrivals);
 
                         $cnt = 1;
-                        $sumQty = 0;  // Pour cumuler la quantité
+                        $sumPrice = 0; // cumule la valeur monétaire
                         while ($row = mysqli_fetch_assoc($arrivalsQuery)) {
-                            $sumQty += $row['Quantity']; // on additionne
+                            $unitPrice = floatval($row['UnitPrice']);
+                            $qty       = floatval($row['Quantity']);
+                            $lineTotal = $unitPrice * $qty;
+                            $sumPrice += $lineTotal;
                             ?>
                             <tr>
                               <td><?php echo $cnt; ?></td>
                               <td><?php echo $row['ArrivalDate']; ?></td>
                               <td><?php echo $row['ProductName']; ?></td>
-                              <td><?php echo $row['Quantity']; ?></td>
+                              <td><?php echo $qty; ?></td>
+                              <td><?php echo number_format($unitPrice,2); ?></td>
+                              <td><?php echo number_format($lineTotal,2); ?></td>
                               <td><?php echo $row['Comments']; ?></td>
                             </tr>
                             <?php
@@ -184,11 +193,10 @@ if (isset($_POST['submit'])) {
                         }
                         ?>
                       </tbody>
-                      <!-- FOOTER avec la somme des quantités -->
                       <tfoot>
                         <tr style="font-weight: bold;">
-                          <td colspan="3" style="text-align:right;">Solde Total</td>
-                          <td><?php echo $sumQty; ?></td>
+                          <td colspan="5" style="text-align:right;">Total Price</td>
+                          <td><?php echo number_format($sumPrice,2); ?></td>
                           <td></td>
                         </tr>
                       </tfoot>
