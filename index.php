@@ -264,7 +264,7 @@
 
 <!-- Header -->
 <header>
-  <div class="navbar-brand">Italal</div>
+  <div class="navbar-brand">Italalu</div>
   <nav>
     <ul>
       <li><a href="#features">Caractéristiques</a></li>
