@@ -8,7 +8,9 @@ if (strlen($_SESSION['imsaid'] == 0)) {
   exit;
 }
 
+// ==========================
 // 1) Insertion d'un paiement
+// ==========================
 if (isset($_POST['submit'])) {
   $supplierID  = intval($_POST['supplierid']);
   $payDate     = $_POST['paydate'];
@@ -33,7 +35,47 @@ if (isset($_POST['submit'])) {
   exit;
 }
 
-// 2) Liste des paiements
+// ==========================
+// 2) Filtre pour afficher le total pour un fournisseur
+// ==========================
+$selectedSupplier = 0;
+$totalArrivals = 0;
+$totalPaid     = 0;
+$totalDue      = 0;
+
+if (isset($_GET['supplierSearch'])) {
+  $selectedSupplier = intval($_GET['supplierSearch']);
+
+  if ($selectedSupplier > 0) {
+    // Calculer la somme des arrivages
+    $sqlArr = "
+      SELECT IFNULL(SUM(Cost),0) as sumArrivals
+      FROM tblproductarrivals
+      WHERE SupplierID='$selectedSupplier'
+    ";
+    $resArr = mysqli_query($con, $sqlArr);
+    $rowArr = mysqli_fetch_assoc($resArr);
+    $totalArrivals = floatval($rowArr['sumArrivals']);
+
+    // Calculer la somme des paiements
+    $sqlPay = "
+      SELECT IFNULL(SUM(Amount),0) as sumPaid
+      FROM tblsupplierpayments
+      WHERE SupplierID='$selectedSupplier'
+    ";
+    $resPay = mysqli_query($con, $sqlPay);
+    $rowPay = mysqli_fetch_assoc($resPay);
+    $totalPaid = floatval($rowPay['sumPaid']);
+
+    // Solde
+    $totalDue = $totalArrivals - $totalPaid;
+    if ($totalDue < 0) $totalDue = 0;
+  }
+}
+
+// ==========================
+// 3) Liste des paiements
+// ==========================
 $sqlList = "
   SELECT sp.ID as paymentID,
          sp.PaymentDate,
@@ -64,7 +106,50 @@ $resList = mysqli_query($con, $sqlList);
   <div class="container-fluid">
     <hr>
 
-    <!-- Formulaire d'ajout de paiement -->
+    <!-- ========== FORMULAIRE pour voir combien on doit et a payé ========== -->
+    <div class="row-fluid">
+      <div class="span12">
+        <form method="get" action="supplier-payments.php" class="form-inline">
+          <label>Choisir un fournisseur :</label>
+          <select name="supplierSearch" required>
+            <option value="">-- Tous --</option>
+            <?php
+            // Charger la liste des fournisseurs
+            $suppQ = mysqli_query($con, "SELECT ID, SupplierName FROM tblsupplier ORDER BY SupplierName ASC");
+            while ($sRow = mysqli_fetch_assoc($suppQ)) {
+              $sid   = $sRow['ID'];
+              $sname = $sRow['SupplierName'];
+              $sel   = ($sid == $selectedSupplier) ? 'selected' : '';
+              echo "<option value='$sid' $sel>$sname</option>";
+            }
+            ?>
+          </select>
+          <button type="submit" class="btn btn-info">Voir le total</button>
+        </form>
+        <hr>
+
+        <?php
+        // Afficher le total pour le fournisseur sélectionné
+        if ($selectedSupplier > 0) {
+          // Récupérer son nom
+          $qsupp = mysqli_query($con, "SELECT SupplierName FROM tblsupplier WHERE ID='$selectedSupplier' LIMIT 1");
+          $rSupp = mysqli_fetch_assoc($qsupp);
+          $supplierName = $rSupp ? $rSupp['SupplierName'] : '???';
+
+          echo "<div style='border:1px solid #ccc; padding:10px;'>";
+          echo "<h4>Fournisseur : <strong>$supplierName</strong></h4>";
+          echo "<p>Total des arrivages : <strong>".number_format($totalArrivals,2)."</strong></p>";
+          echo "<p>Total payé : <strong>".number_format($totalPaid,2)."</strong></p>";
+          echo "<p>Solde dû : <strong style='color:red;'>".number_format($totalDue,2)."</strong></p>";
+          echo "</div>";
+        }
+        ?>
+      </div>
+    </div><!-- row-fluid -->
+
+    <hr>
+
+    <!-- ========== FORMULAIRE d'ajout de paiement ========== -->
     <div class="row-fluid">
       <div class="span12">
         <div class="widget-box">
@@ -80,9 +165,10 @@ $resList = mysqli_query($con, $sqlList);
                   <select name="supplierid" required>
                     <option value="">-- Choisir --</option>
                     <?php
-                    $suppQ = mysqli_query($con, "SELECT ID, SupplierName FROM tblsupplier ORDER BY SupplierName ASC");
-                    while ($rowS = mysqli_fetch_assoc($suppQ)) {
-                      echo '<option value="'.$rowS['ID'].'">'.$rowS['SupplierName'].'</option>';
+                    // Recharger la liste
+                    $suppQ2 = mysqli_query($con, "SELECT ID, SupplierName FROM tblsupplier ORDER BY SupplierName ASC");
+                    while ($rowS2 = mysqli_fetch_assoc($suppQ2)) {
+                      echo '<option value="'.$rowS2['ID'].'">'.$rowS2['SupplierName'].'</option>';
                     }
                     ?>
                   </select>
@@ -119,7 +205,7 @@ $resList = mysqli_query($con, $sqlList);
 
     <hr>
 
-    <!-- Liste des paiements -->
+    <!-- ========== LISTE DES PAIEMENTS ========== -->
     <div class="row-fluid">
       <div class="span12">
         <div class="widget-box">
