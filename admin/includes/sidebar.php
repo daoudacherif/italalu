@@ -34,8 +34,8 @@
     <li> <a href="return.php"><i class="icon-search"></i> <span>Retour</span></a></li>
     <li> <a href="invoice-search.php"><i class="icon-search"></i> <span>Rechercher une facture</span></a></li>
     <li> <a href="arrival.php"><i class="icon-group"></i> <span>Arrivage</span></a></li>  
-    <li> <a href="suplier.php"><i class="icon-group"></i> <span>fournisseur</span></a></li>  
-    <li> <a href="supplier-payment.php"><i class="icon-group"></i> <span>payment fournisseur</span></a></li>  
+    <li> <a href="supplier.php"><i class="icon-group"></i> <span>fournisseur</span></a></li>  
+    <li> <a href="supplier-payments.php"><i class="icon-group"></i> <span>payment fournisseur</span></a></li>  
     
     <li> <a href="client-account.php"><i class="icon-group"></i> <span>compte client</span></a></li>
     <li> <a href="customer-details.php"><i class="icon-group"></i> <span>Détails client</span></a></li>
