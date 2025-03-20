@@ -13,9 +13,19 @@ if (isset($_POST['submit'])) {
     $productID   = intval($_POST['productid']);
     $supplierID  = intval($_POST['supplierid']);
     $quantity    = intval($_POST['quantity']);
-    $arrivalDate = $_POST['arrivaldate'];
-    $cost        = floatval($_POST['cost']);
+    // On ne tient plus compte du $_POST['cost'] de l'utilisateur,
+    // car on va recalcule côté serveur pour sécurité :
+    // => on va lire le prix du produit en base.
     $comments    = mysqli_real_escape_string($con, $_POST['comments']);
+    $arrivalDate = $_POST['arrivaldate'];
+
+    // -- Récupérer le prix unitaire depuis la base (sécurité)
+    $priceQ = mysqli_query($con, "SELECT Price FROM tblproducts WHERE ID='$productID' LIMIT 1");
+    $priceR = mysqli_fetch_assoc($priceQ);
+    $unitPrice = floatval($priceR['Price']);
+
+    // Calcul du coût total côté serveur (pour éviter manip client)
+    $cost = $unitPrice * $quantity;
 
     if ($productID <= 0 || $supplierID <= 0 || $quantity <= 0 || $cost < 0) {
         echo "<script>alert('Invalid data');</script>";
@@ -93,7 +103,7 @@ $resArrivals = mysqli_query($con, $sqlArrivals);
             <h5>Add New Product Arrival</h5>
           </div>
           <div class="widget-content nopadding">
-            <form method="post" class="form-horizontal">
+            <form method="post" class="form-horizontal" id="arrivalForm">
               
               <!-- Arrival Date -->
               <div class="control-group">
@@ -107,13 +117,14 @@ $resArrivals = mysqli_query($con, $sqlArrivals);
               <div class="control-group">
                 <label class="control-label">Select Product :</label>
                 <div class="controls">
-                  <select name="productid" required>
+                  <select name="productid" id="productSelect" required>
                     <option value="">-- Choose Product --</option>
                     <?php
-                    // Load products
-                    $prodQ = mysqli_query($con, "SELECT ID, ProductName FROM tblproducts ORDER BY ProductName ASC");
+                    // Charger produits avec data-price
+                    $prodQ = mysqli_query($con, "SELECT ID, ProductName, Price FROM tblproducts ORDER BY ProductName ASC");
                     while ($pRow = mysqli_fetch_assoc($prodQ)) {
-                      echo '<option value="'.$pRow['ID'].'">'.$pRow['ProductName'].'</option>';
+                      // On stocke le prix dans data-price
+                      echo '<option value="'.$pRow['ID'].'" data-price="'.$pRow['Price'].'">'.$pRow['ProductName'].'</option>';
                     }
                     ?>
                   </select>
@@ -127,7 +138,6 @@ $resArrivals = mysqli_query($con, $sqlArrivals);
                   <select name="supplierid" required>
                     <option value="">-- Choose Supplier --</option>
                     <?php
-                    // Load suppliers
                     $suppQ = mysqli_query($con, "SELECT ID, SupplierName FROM tblsupplier ORDER BY SupplierName ASC");
                     while ($sRow = mysqli_fetch_assoc($suppQ)) {
                       echo '<option value="'.$sRow['ID'].'">'.$sRow['SupplierName'].'</option>';
@@ -141,15 +151,16 @@ $resArrivals = mysqli_query($con, $sqlArrivals);
               <div class="control-group">
                 <label class="control-label">Quantity :</label>
                 <div class="controls">
-                  <input type="number" name="quantity" min="1" value="1" required />
+                  <input type="number" name="quantity" id="quantity" min="1" value="1" required />
                 </div>
               </div>
 
-              <!-- Cost -->
+              <!-- Cost (auto-calculé) -->
               <div class="control-group">
-                <label class="control-label">Total Cost :</label>
+                <label class="control-label">Total Cost (auto) :</label>
                 <div class="controls">
-                  <input type="number" name="cost" step="any" min="0" value="0" required />
+                  <input type="number" name="cost" id="cost" step="any" min="0"
+                         value="0" readonly />
                 </div>
               </div>
 
@@ -233,7 +244,43 @@ $resArrivals = mysqli_query($con, $sqlArrivals);
 <?php include_once('includes/footer.php'); ?>
 <script src="js/jquery.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
-<script src="js/jquery.dataTables.min.js"></script>
-<script src="js/matrix.tables.js"></script>
+<script>
+// =====================
+// Auto-calc cost client-side
+// =====================
+function updateCost() {
+  const productSelect = document.getElementById('productSelect');
+  const quantityInput = document.getElementById('quantity');
+  const costInput     = document.getElementById('cost');
+
+  if (!productSelect || !quantityInput || !costInput) return;
+
+  // Prix unitaire depuis data-price
+  const selectedOption = productSelect.options[productSelect.selectedIndex];
+  const unitPrice = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+
+  // Quantité
+  const qty = parseFloat(quantityInput.value) || 0;
+
+  // Calcul
+  const total = unitPrice * qty;
+  costInput.value = total.toFixed(2);
+}
+
+// Ecouter les changements
+document.addEventListener('DOMContentLoaded', function() {
+  // Sur le select du produit
+  const productSelect = document.getElementById('productSelect');
+  if (productSelect) {
+    productSelect.addEventListener('change', updateCost);
+  }
+
+  // Sur la quantité
+  const quantityInput = document.getElementById('quantity');
+  if (quantityInput) {
+    quantityInput.addEventListener('input', updateCost);
+  }
+});
+</script>
 </body>
 </html>
