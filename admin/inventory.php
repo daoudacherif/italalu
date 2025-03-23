@@ -2,6 +2,8 @@
 session_start();
 error_reporting(0);
 include('includes/dbconnection.php');
+
+// Vérifier si l'admin est connecté
 if (strlen($_SESSION['imsaid'] == 0)) {
   header('location:logout.php');
   exit;
@@ -44,58 +46,67 @@ if (strlen($_SESSION['imsaid'] == 0)) {
                 <tr>
                   <th>N°</th>
                   <th>Nom du Produit</th>
-                  <th>Nom de la Catégorie</th>
-                  <th>Nom de la Sous-Catégorie</th>
-                  <th>Nom de la Marque</th>
-                  <th>Numéro de Modèle</th>
+                  <th>Catégorie</th>
+                  <th>Sous-Catégorie</th>
+                  <th>Marque</th>
+                  <th>Modèle</th>
                   <th>Stock Restant</th>
                   <th>Statut</th>
                 </tr>
               </thead>
               <tbody>
                 <?php
-                // On calcule le stock restant = tblproducts.Stock - SUM(tblcart.ProductQty)
-                $ret = mysqli_query($con, "
-                  SELECT 
-                    tblcategory.CategoryName,
-                    tblsubcategory.SubCategoryname AS subcat,
-                    tblproducts.ProductName,
-                    tblproducts.BrandName,
-                    tblproducts.ID AS pid,
-                    tblproducts.Status,
-                    tblproducts.CreationDate,
-                    tblproducts.ModelNumber,
-                    tblproducts.Stock,
-                    SUM(tblcart.ProductQty) AS selledqty
-                  FROM tblproducts
-                  JOIN tblcategory ON tblcategory.ID = tblproducts.CatID
-                  JOIN tblsubcategory ON tblsubcategory.ID = tblproducts.SubcatID
-                  LEFT JOIN tblcart ON tblproducts.ID = tblcart.ProductId
-                  GROUP BY tblproducts.ID
-                  ORDER BY tblproducts.ID DESC
-                ");
-
+                /*
+                  On calcule le stock restant = tblproducts.Stock - SUM(tblcart.ProductQty)
+                  On utilise LEFT JOIN pour Category et SubCategory 
+                  => le produit apparaît même si CatID / SubcatID ne correspond pas
+                */
+                $sql = "
+                  SELECT
+                    p.ID as pid,
+                    p.ProductName,
+                    p.BrandName,
+                    p.ModelNumber,
+                    p.Stock,
+                    p.Status,
+                    c.CategoryName,
+                    sc.SubCategoryname as subcat,
+                    SUM(cart.ProductQty) as selledqty
+                  FROM tblproducts p
+                  LEFT JOIN tblcategory c ON c.ID = p.CatID
+                  LEFT JOIN tblsubcategory sc ON sc.ID = p.SubcatID
+                  LEFT JOIN tblcart cart ON cart.ProductId = p.ID
+                  GROUP BY p.ID
+                  ORDER BY p.ID DESC
+                ";
+                $ret = mysqli_query($con, $sql);
                 $num = mysqli_num_rows($ret);
                 if ($num > 0) {
                   $cnt = 1;
-                  while ($row = mysqli_fetch_array($ret)) {
+                  while ($row = mysqli_fetch_assoc($ret)) {
                     $qtySold = $row['selledqty'];
                     if (!$qtySold) {
                       $qtySold = 0; // si aucune vente
                     }
                     // Calcul du stock restant
                     $stockRemain = $row['Stock'] - $qtySold;
+
+                    // Catégorie / Sous-catégorie peuvent être NULL => on affiche "N/A" si c'est vide
+                    $catName   = $row['CategoryName'] ? $row['CategoryName'] : "N/A";
+                    $subcatName= $row['subcat'] ? $row['subcat'] : "N/A";
+
                     ?>
                     <tr class="gradeX">
                       <td><?php echo $cnt; ?></td>
                       <td><?php echo $row['ProductName']; ?></td>
-                      <td><?php echo $row['CategoryName']; ?></td>
-                      <td><?php echo $row['subcat']; ?></td>
+                      <td><?php echo $catName; ?></td>
+                      <td><?php echo $subcatName; ?></td>
                       <td><?php echo $row['BrandName']; ?></td>
                       <td><?php echo $row['ModelNumber']; ?></td>
                       <td><?php echo $stockRemain; ?></td>
                       <td>
                         <?php 
+                        // Statut
                         if ($row['Status'] == "1") {
                           echo "Actif";
                         } else {
@@ -110,7 +121,9 @@ if (strlen($_SESSION['imsaid'] == 0)) {
                 } else {
                   ?>
                   <tr>
-                    <td colspan="8" style="text-align:center;">Aucun enregistrement trouvé.</td>
+                    <td colspan="8" style="text-align:center;">
+                      Aucun enregistrement trouvé.
+                    </td>
                   </tr>
                   <?php
                 }
@@ -125,7 +138,6 @@ if (strlen($_SESSION['imsaid'] == 0)) {
 </div><!-- content -->
 
 <?php include_once('includes/footer.php'); ?>
-<!--end-Footer-part-->
 
 <script src="js/jquery.min.js"></script>
 <script src="js/jquery.ui.custom.js"></script>
