@@ -48,16 +48,13 @@ if (strlen($_SESSION['imsaid'] == 0)) {
                   <th>Nom de la Sous-Catégorie</th>
                   <th>Nom de la Marque</th>
                   <th>Numéro de Modèle</th>
-                  <!-- Retirer la colonne “Stock” -->
                   <th>Stock Restant</th>
                   <th>Statut</th>
-                 
                 </tr>
               </thead>
               <tbody>
                 <?php
-                // On calcule le stock restant = tblproducts.Stock - sum(tblcart.ProductQty)
-                // On fait une LEFT JOIN sur tblcart pour connaître la quantité vendue
+                // On calcule le stock restant = tblproducts.Stock - SUM(tblcart.ProductQty)
                 $ret = mysqli_query($con, "
                   SELECT 
                     tblcategory.CategoryName,
@@ -96,33 +93,13 @@ if (strlen($_SESSION['imsaid'] == 0)) {
                       <td><?php echo $row['subcat']; ?></td>
                       <td><?php echo $row['BrandName']; ?></td>
                       <td><?php echo $row['ModelNumber']; ?></td>
-
-                      <!-- Stock Restant -->
-                      <td>
-                        <?php
-                        echo $stockRemain; 
-                        ?>
-                      </td>
-
-                      <!-- Statut (Actif/Inactif) -->
+                      <td><?php echo $stockRemain; ?></td>
                       <td>
                         <?php 
                         if ($row['Status'] == "1") {
                           echo "Actif";
                         } else {
                           echo "Inactif";
-                        }
-                        ?>
-                      </td>
-
-                      <!-- Action : on empêche l’ajout au panier si stock <= 0 -->
-                      <td>
-                        <?php
-                        if ($stockRemain <= 0) {
-                          echo "<span style='color:red;'>Stock épuisé</span>";
-                        } else {
-                          // Ex. un lien ou bouton pour ajouter au panier
-                          echo "<a href='#' class='btn btn-mini btn-success'>Ajouter au panier</a>";
                         }
                         ?>
                       </td>
@@ -133,7 +110,7 @@ if (strlen($_SESSION['imsaid'] == 0)) {
                 } else {
                   ?>
                   <tr>
-                    <td colspan="9" style="text-align:center;">Aucun enregistrement trouvé.</td>
+                    <td colspan="8" style="text-align:center;">Aucun enregistrement trouvé.</td>
                   </tr>
                   <?php
                 }
