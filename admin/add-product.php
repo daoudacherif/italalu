@@ -12,14 +12,22 @@ if (strlen($_SESSION['imsaid'] == 0)) {
 if (isset($_POST['submit'])) {
     $pname       = $_POST['pname'];
     $category    = $_POST['category'];
+    // Récupérer la sous-catégorie potentielle
     $subcategory = $_POST['subcategory'];
-    $bname       = $_POST['bname'];
-    $modelno     = $_POST['modelno'];
-    $stock       = $_POST['stock'];
-    $price       = $_POST['price'];
-    // Si la case "Statut" est cochée => 1, sinon 0 (ou on peut laisser 1 si on veut forcer)
-    $status      = isset($_POST['status']) ? 1 : 0;
 
+    // Si sous-catégorie vide => on force à 0
+    // (tu peux mettre "NULL" si ta colonne autorise NULL)
+    if ($subcategory == "") {
+        $subcategory = 0;
+    }
+
+    $bname   = $_POST['bname'];
+    $modelno = $_POST['modelno'];
+    $stock   = $_POST['stock'];
+    $price   = $_POST['price'];
+    $status  = isset($_POST['status']) ? 1 : 0;
+
+    // Insertion
     $query = mysqli_query($con, "
       INSERT INTO tblproducts(
         ProductName, CatID, SubcatID, BrandName, ModelNumber, Stock, Price, Status
@@ -48,7 +56,7 @@ if (isset($_POST['submit'])) {
   function getSubCat(val) {
     $.ajax({
       type: "POST",
-      url: "get-subcat.php",
+      url: "get-subcat.php",   // Ce fichier doit exister
       data: { catid: val },
       success: function(data) {
         $("#subcategory").html(data);
@@ -100,8 +108,9 @@ if (isset($_POST['submit'])) {
                   <select class="span11" name="category" onChange="getSubCat(this.value)" required>
                     <option value="">Sélectionnez une Catégorie</option>
                     <?php
-                    $query = mysqli_query($con, "SELECT * FROM tblcategory WHERE Status='1'");
-                    while ($row = mysqli_fetch_array($query)) {
+                    // Charger les catégories actives
+                    $catQuery = mysqli_query($con, "SELECT ID, CategoryName FROM tblcategory WHERE Status='1'");
+                    while ($row = mysqli_fetch_assoc($catQuery)) {
                       echo '<option value="'.$row['ID'].'">'.$row['CategoryName'].'</option>';
                     }
                     ?>
@@ -109,12 +118,13 @@ if (isset($_POST['submit'])) {
                 </div>
               </div>
 
-              <!-- Sous-Catégorie -->
+              <!-- Sous-Catégorie (facultative) -->
               <div class="control-group">
                 <label class="control-label">Sous-Catégorie :</label>
                 <div class="controls">
-                  <select class="span11" name="subcategory" id="subcategory" required>
-                    <option value="">Sélectionnez une Sous-Catégorie</option>
+                  <!-- Retirer 'required' pour rendre facultatif -->
+                  <select class="span11" name="subcategory" id="subcategory">
+                    <option value="">(Facultatif) Sélectionnez une Sous-Catégorie</option>
                   </select>
                 </div>
               </div>
@@ -126,9 +136,9 @@ if (isset($_POST['submit'])) {
                   <select class="span11" name="bname" required>
                     <option value="">Sélectionnez une Marque</option>
                     <?php
-                    $query1 = mysqli_query($con, "SELECT * FROM tblbrand WHERE Status='1'");
-                    while ($row1 = mysqli_fetch_array($query1)) {
-                      echo '<option value="'.$row1['BrandName'].'">'.$row1['BrandName'].'</option>';
+                    $brandQ = mysqli_query($con, "SELECT * FROM tblbrand WHERE Status='1'");
+                    while ($brow = mysqli_fetch_assoc($brandQ)) {
+                      echo '<option value="'.$brow['BrandName'].'">'.$brow['BrandName'].'</option>';
                     }
                     ?>
                   </select>
