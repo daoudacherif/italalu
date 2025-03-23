@@ -44,6 +44,8 @@ if (isset($_POST['submit'])) {
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+  
+
 <head>
   <title>Système de Gestion des Stocks || Ajouter des Produits</title>
   <?php include_once('includes/cs.php');?>
@@ -134,7 +136,7 @@ if (isset($_POST['submit'])) {
                 <label class="control-label">Marque :</label>
                 <div class="controls">
                   <select class="span11" name="bname" >
-                    <option value="">Sélectionnez une Marque</option>
+                    <option value="">(Facultatif) Sélectionnez une Marque</option>
                     <?php
                     $brandQ = mysqli_query($con, "SELECT * FROM tblbrand WHERE Status='1'");
                     while ($brow = mysqli_fetch_assoc($brandQ)) {
@@ -149,7 +151,7 @@ if (isset($_POST['submit'])) {
               <div class="control-group">
                 <label class="control-label">Numéro de Modèle :</label>
                 <div class="controls">
-                  <input type="text" class="span11" name="modelno" required maxlength="20" placeholder="Ex: ABC12" />
+                  <input type="text" class="span11" name="modelno" maxlength="20" placeholder="Ex: ABC12" />
                 </div>
               </div>
 
