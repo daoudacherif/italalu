@@ -4,7 +4,7 @@ error_reporting(0);
 include('includes/dbconnection.php');
 
 // Vérifier si l'admin est connecté
-if (strlen($_SESSION['imsaid'] == 0) {
+if (strlen($_SESSION['imsaid']) == 0) {
   header('location:logout.php');
   exit;
 }
