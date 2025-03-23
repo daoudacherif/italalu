@@ -51,7 +51,7 @@ if (strlen($_SESSION['imsaid'] == 0)) {
                   <!-- Retirer la colonne “Stock” -->
                   <th>Stock Restant</th>
                   <th>Statut</th>
-                  <th>Action</th> <!-- pour montrer si on peut ajouter au panier -->
+                 
                 </tr>
               </thead>
               <tbody>
