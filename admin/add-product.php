@@ -133,7 +133,7 @@ if (isset($_POST['submit'])) {
               <div class="control-group">
                 <label class="control-label">Marque :</label>
                 <div class="controls">
-                  <select class="span11" name="bname" required>
+                  <select class="span11" name="bname" >
                     <option value="">Sélectionnez une Marque</option>
                     <?php
                     $brandQ = mysqli_query($con, "SELECT * FROM tblbrand WHERE Status='1'");
