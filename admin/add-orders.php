@@ -112,6 +112,7 @@ if (isset($_POST['submit'])) {
 
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <title>Système de Gestion des Stocks | Ajouter une Commande</title>
 
@@ -128,6 +129,13 @@ if (isset($_POST['submit'])) {
       .btn_remove, #add {
         margin-top: 5px;
       }
+      
+    .control-label {
+      font-size: 20px;
+      font-weight: bolder;
+      color: black;  
+    }
+  
     </style>
 </head>
 

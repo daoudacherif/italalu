@@ -73,6 +73,13 @@ $resArrivals = mysqli_query($con, $sqlArrivals);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<style>
+    .control-label {
+      font-size: 20px;
+      font-weight: bolder;
+      color: black;  
+    }
+  </style>
 <head>
     <title>Inventory Management | Product Arrivals</title>
     <?php include_once('includes/cs.php'); ?>

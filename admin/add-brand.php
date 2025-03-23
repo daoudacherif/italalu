@@ -25,6 +25,13 @@ if (strlen($_SESSION['imsaid']==0)) {
   ?>
 <!DOCTYPE html>
 <html lang="fr">
+<style>
+    .control-label {
+      font-size: 20px;
+      font-weight: bolder;
+      color: black;  
+    }
+  </style>
 <head>
 <title>Système de Gestion des Stocks || Ajouter une Marque</title>
 <?php include_once('includes/cs.php');?>
