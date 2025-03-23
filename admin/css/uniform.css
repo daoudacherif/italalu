@@ -585,3 +585,9 @@ div.uploader input {
   border: none;
   cursor: default;
 }
+
+    .control-label {
+      font-size: 20px;
+      font-weight: bolder;
+      color: black;  
+    }
