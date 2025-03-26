@@ -2,41 +2,55 @@
 session_start();
 error_reporting(0);
 include('includes/dbconnection.php');
-if (strlen($_SESSION['imsaid']==0)) {
-  header('location:logout.php');
-  } else{
 
+// Vérifier si l'admin est connecté
+if (strlen($_SESSION['imsaid']) == 0) {
+    header('location:logout.php');
+    exit;
+}
 
-
-  ?>
+// Requête pour récupérer les sous-catégories avec leur catégorie associée
+$ret = mysqli_query($con, "
+    SELECT 
+        tblcategory.CategoryName,
+        tblsubcategory.ID as sid,
+        tblsubcategory.SubCategoryname,
+        tblsubcategory.Status,
+        tblsubcategory.CreationDate
+    FROM tblsubcategory
+    JOIN tblcategory ON tblcategory.ID = tblsubcategory.CatID
+    ORDER BY tblsubcategory.ID DESC
+");
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<title>Système de Gestion d'Inventaire || Gérer la Sous-catégorie</title>
-<?php include_once('includes/cs.php');?>
+  <title>Système de Gestion d'Inventaire || Gérer la Sous-catégorie</title>
+  <?php include_once('includes/cs.php'); ?>
 </head>
 <body>
 
-<?php include_once('includes/header.php');?>
-<?php include_once('includes/sidebar.php');?>
-
+<?php include_once('includes/header.php'); ?>
+<?php include_once('includes/sidebar.php'); ?>
 
 <div id="content">
   <div id="content-header">
-    <div id="breadcrumb"> <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom"><i class="icon-home"></i> Accueil</a> <a href="manage-subcategory.php" class="current">Gérer la Sous-catégorie</a> </div>
+    <div id="breadcrumb">
+      <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom">
+        <i class="icon-home"></i> Accueil
+      </a>
+      <a href="manage-subcategory.php" class="tip-bottom">Gérer la Sous-catégorie</a>
+    </div>
     <h1>Gérer la Sous-catégorie</h1>
   </div>
   <div class="container-fluid">
     <hr>
     <div class="row-fluid">
       <div class="span12">
-        
-       
-     
-        
         <div class="widget-box">
-          <div class="widget-title"> <span class="icon"><i class="icon-th"></i></span>
-            <h5>Gérer la Catégorie</h5>
+          <div class="widget-title">
+            <span class="icon"><i class="icon-th"></i></span>
+            <h5>Gérer la Sous-catégorie</h5>
           </div>
           <div class="widget-content nopadding">
             <table class="table table-bordered data-table">
@@ -48,42 +62,39 @@ if (strlen($_SESSION['imsaid']==0)) {
                   <th>Statut</th>
                   <th>Date de Création</th>
                   <th>Action</th>
-                  
                 </tr>
               </thead>
               <tbody>
                 <?php
-$ret=mysqli_query($con,"select tblcategory.CategoryName,tblsubcategory.ID as sid,tblsubcategory.SubCategoryname,tblsubcategory.Status,tblsubcategory.CreationDate from  tblsubcategory join tblcategory on tblcategory.ID=tblsubcategory.CatID");
-$cnt=1;
-while ($row=mysqli_fetch_array($ret)) {
-
-?>
+                $cnt = 1;
+                while ($row = mysqli_fetch_assoc($ret)) {
+                ?>
                 <tr class="gradeX">
-                  <td><?php echo $cnt;?></td>
-                  <td><?php  echo $row['CategoryName'];?></td>
-                  <td><?php  echo $row['SubCategoryname'];?></td>
-                  <?php if($row['Status']=="1"){ ?>
-
-                     <td><?php echo "Actif"; ?></td>
-<?php } else { ?>                  <td><?php echo "Inactif"; ?>
+                  <td><?php echo $cnt; ?></td>
+                  <td><?php echo $row['CategoryName']; ?></td>
+                  <td><?php echo $row['SubCategoryname']; ?></td>
+                  <td><?php echo ($row['Status'] == "1") ? "Actif" : "Inactif"; ?></td>
+                  <td><?php echo $row['CreationDate']; ?></td>
+                  <td class="center">
+                    <a href="editsubcategory.php?scid=<?php echo $row['sid']; ?>">
+                      <i class="icon-edit"></i>
+                    </a>
                   </td>
-                  <?php } ?>
-                  <td><?php  echo $row['CreationDate'];?></td>
-                  <td class="center"><a href="editsubcategory.php?scid=<?php echo $row['sid'];?>"><i class=" icon-edit"></i></a></td>
                 </tr>
                 <?php 
-$cnt=$cnt+1;
-}?> 
+                    $cnt++;
+                }
+                ?> 
               </tbody>
             </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<!--Footer-part-->
-<?php include_once('includes/footer.php');?>
+          </div><!-- widget-content nopadding -->
+        </div><!-- widget-box -->
+      </div><!-- span12 -->
+    </div><!-- row-fluid -->
+  </div><!-- container-fluid -->
+</div><!-- content -->
+
+<?php include_once('includes/footer.php'); ?>
 <!--end-Footer-part-->
 <script src="js/jquery.min.js"></script> 
 <script src="js/jquery.ui.custom.js"></script> 
@@ -95,4 +106,4 @@ $cnt=$cnt+1;
 <script src="js/matrix.tables.js"></script>
 </body>
 </html>
-<?php } ?>
+<?php  ?>
