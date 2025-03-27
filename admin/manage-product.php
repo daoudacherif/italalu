@@ -9,21 +9,22 @@ if (strlen($_SESSION['imsaid']) == 0) {
   exit;
 }
 
+// Requête SQL : LEFT JOIN pour inclure les produits même si CatID ou SubcatID est 0 / NULL
 $ret = mysqli_query($con, "
     SELECT 
-      tblproducts.ID AS pid,
-      tblproducts.ProductName,
-      tblproducts.BrandName,
-      tblproducts.ModelNumber,
-      tblproducts.Stock,
-      tblproducts.Status,
-      tblproducts.CreationDate,
-      tblcategory.CategoryName,
-      tblsubcategory.SubCategoryname AS subcat
-    FROM tblproducts
-    INNER JOIN tblcategory ON tblcategory.ID = tblproducts.CatID
-    INNER JOIN tblsubcategory ON tblsubcategory.ID = tblproducts.SubcatID
-    ORDER BY tblproducts.ID DESC
+      p.ID AS pid,
+      p.ProductName,
+      p.BrandName,
+      p.ModelNumber,
+      p.Stock,
+      p.Status,
+      p.CreationDate,
+      c.CategoryName,
+      sc.SubCategoryname AS subcat
+    FROM tblproducts p
+    LEFT JOIN tblcategory c ON c.ID = p.CatID
+    LEFT JOIN tblsubcategory sc ON sc.ID = p.SubcatID
+    ORDER BY p.ID DESC
 ");
 ?>
 <!DOCTYPE html>
@@ -62,10 +63,10 @@ $ret = mysqli_query($con, "
                 <tr>
                   <th>N°</th>
                   <th>Nom du Produit</th>
-                  <th>Nom de la Catégorie</th>
-                  <th>Nom de la Sous-Catégorie</th>
-                  <th>Nom de la Marque</th>
-                  <th>Numéro de Modèle</th>
+                  <th>Catégorie</th>
+                  <th>Sous-Catégorie</th>
+                  <th>Marque</th>
+                  <th>Modèle</th>
                   <th>Stock</th>
                   <th>Statut</th>
                   <th>Date de Création</th>
@@ -76,16 +77,22 @@ $ret = mysqli_query($con, "
                 <?php
                 $cnt = 1;
                 while ($row = mysqli_fetch_assoc($ret)) {
+                  // Si CategoryName ou SubCategoryname est NULL => on peut afficher 'Inconnue' si besoin
+                  $catName   = $row['CategoryName'] ?: 'Inconnue';
+                  $subcatName= $row['subcat'] ?: 'Inconnue';
+
+                  // Statut (1 => Actif, 0 => Inactif)
+                  $status = ($row['Status'] == "1") ? "Actif" : "Inactif";
                   ?>
                   <tr class="gradeX">
                     <td><?php echo $cnt; ?></td>
                     <td><?php echo $row['ProductName']; ?></td>
-                    <td><?php echo $row['CategoryName']; ?></td>
-                    <td><?php echo $row['subcat']; ?></td>
+                    <td><?php echo $catName; ?></td>
+                    <td><?php echo $subcatName; ?></td>
                     <td><?php echo $row['BrandName']; ?></td>
                     <td><?php echo $row['ModelNumber']; ?></td>
                     <td><?php echo $row['Stock']; ?></td>
-                    <td><?php echo ($row['Status'] == "1") ? "Actif" : "Inactif"; ?></td>
+                    <td><?php echo $status; ?></td>
                     <td><?php echo $row['CreationDate']; ?></td>
                     <td class="center">
                       <a href="editproducts.php?editid=<?php echo $row['pid']; ?>">
@@ -107,13 +114,13 @@ $ret = mysqli_query($con, "
 </div><!-- content -->
 
 <?php include_once('includes/footer.php'); ?>
-<script src="js/jquery.min.js"></script> 
-<script src="js/jquery.ui.custom.js"></script> 
-<script src="js/bootstrap.min.js"></script> 
-<script src="js/jquery.uniform.js"></script> 
-<script src="js/select2.min.js"></script> 
-<script src="js/jquery.dataTables.min.js"></script> 
-<script src="js/matrix.js"></script> 
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery.ui.custom.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.uniform.js"></script>
+<script src="js/select2.min.js"></script>
+<script src="js/jquery.dataTables.min.js"></script>
+<script src="js/matrix.js"></script>
 <script src="js/matrix.tables.js"></script>
 </body>
 </html>
