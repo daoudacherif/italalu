@@ -2,211 +2,162 @@
 session_start();
 error_reporting(0);
 include('includes/dbconnection.php');
-if (strlen($_SESSION['imsaid']) == 0) {
+if (strlen($_SESSION['imsaid']==0)) {
   header('location:logout.php');
-  exit;
-}
-?>
+  } else{
+
+
+
+  ?>
 <!DOCTYPE html>
 <html lang="fr">
+<?php include_once('includes/css_change.php');?>
 <head>
-  <meta charset="UTF-8">
-  <title>Tableau de Bord | Inventaire</title>
-  <link rel="stylesheet" href="includes/cs.php">
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f0f4f5;
-      margin: 0;
-      padding: 0;
-    }
+<title>Système de Gestion d'Inventaire || Tableau de Bord</title>
 
-    .dashboard-container {
-      display: flex;
-    }
-
-    .sidebar {
-      width: 240px;
-      background-color: #164e42;
-      color: white;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding: 20px;
-    }
-
-    .sidebar h2 {
-      color: white;
-      margin-bottom: 30px;
-    }
-
-    .sidebar a {
-      color: white;
-      text-decoration: none;
-      margin: 10px 0;
-      display: flex;
-      align-items: center;
-      font-weight: 500;
-    }
-
-    .sidebar a:hover {
-      background-color: #1e6355;
-      padding: 10px;
-      border-radius: 6px;
-    }
-
-    .main-content {
-      flex: 1;
-      padding: 30px;
-    }
-
-    .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 20px;
-      margin-top: 30px;
-    }
-
-    .card {
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
-    .card h3 {
-      margin-bottom: 10px;
-    }
-
-    .card span {
-      font-size: 20px;
-      font-weight: bold;
-    }
-
-    .sales-chart, .product-table {
-      background-color: white;
-      border-radius: 10px;
-      margin-top: 30px;
-      padding: 20px;
-    }
-
-    .product-table table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-
-    .product-table th, .product-table td {
-      text-align: left;
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .product-table th {
-      background-color: #f5f5f5;
-    }
-
-    .highlight {
-      color: #16a085;
-      font-weight: bold;
-    }
-  </style>
+<?php include_once('includes/cs.php');?>
 </head>
 <body>
 
-<div class="dashboard-container">
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <h2>gk</h2>
-    <a href="dashboard.php">🏠 Tableau de Bord</a>
-    <a href="manage-category.php">📂 Catégories</a>
-    <a href="manage-subcategory.php">📁 Sous-catégories</a>
-    <a href="manage-brand.php">🏷️ Marques</a>
-    <a href="manage-product.php">📦 Produits</a>
-    <a href="inventory.php">📋 Inventaire</a>
-    <a href="cart.php">💰 Comptant</a>
-    <a href="dettecart.php">💳 Terme</a>
-    <a href="client-account.php">👤 Clients</a>
-    <a href="sales-report.php">📈 Rapports</a>
-    <a href="settings.php">⚙️ Paramètres</a>
+ 
+
+
+
+<?php include_once('includes/header.php');?>
+<?php include_once('includes/sidebar.php');?>
+<!--sidebar-menu-->
+
+<!--main-container-part-->
+<div id="content">
+<!--breadcrumbs-->
+  <div id="content-header">
+    <div id="breadcrumb"> <a href="dashboard.php" title="Aller à l'accueil" class="tip-bottom"><i class="icon-home"></i> Accueil</a></div>
   </div>
+<!--End-breadcrumbs-->
 
-  <!-- Main content -->
-  <div class="main-content">
-    <div class="dashboard-header">
-      <h1>Tableau de Bord</h1>
-      <div class="user-info">Admin connecté</div>
+<!--Action boxes-->
+<br />
+  <div class="container-fluid">
+   <div class="widget-box widget-plain">
+      <div class="center">
+
+<ul class="quick-actions">
+
+  <?php $query1=mysqli_query($con,"Select * from tblbrand where Status='1'");
+$brandcount=mysqli_num_rows($query1);
+?>
+        <li class="bg_lb"> <a href="manage-brand.php"><i class="fa fa-building-o fa-3x"></i><br /> 
+         <span class="label label-important" style="margin-top:5%"><?php echo $brandcount;?></span> Marques </a> </li>
+
+<?php $query2=mysqli_query($con,"Select * from tblcategory where Status='1'");
+$catcount=mysqli_num_rows($query2);
+?>
+
+      
+        <li class="bg_ly"> <a href="manage-category.php"> <i class="icon-list fa-3x"></i>
+          <span class="label label-success" style="margin-top:7%"><?php echo $catcount;?></span> Catégories </a> </li>
+
+<?php $query3=mysqli_query($con,"Select * from tblsubcategory where Status='1'");
+$subcatcount=mysqli_num_rows($query3);
+?>
+
+        <li class="bg_lo"> <a href="manage-subcategory.php">  <i class="icon-th"></i> <span class="label label--success" style="margin-top:7%"><?php echo $subcatcount;?>    </span>&nbsp; Sous-catégories</a> </li>
+
+<?php $query4=mysqli_query($con,"Select * from tblproducts");
+$productcount=mysqli_num_rows($query4);
+?>
+
+        <li class="bg_ls"> <a href="manage-product.php"> <i class="icon-list-alt"></i>
+
+         <span class="label label-success" style="margin-top:7%"><?php echo $productcount;?></span>  Produits</a> </li>
+
+            <?php $query5=mysqli_query($con,"Select * from tblcustomer");
+$totuser=mysqli_num_rows($query5);
+?>
+
+        <li class="bg_lo span3"> <a href="form-common.html"> <i class="icon-user"></i>
+
+        <span class="label label--success" style="margin-top:5%"><?php echo $totuser;?>    </span> Utilisateurs</a> </li>
+
+      </ul>
+
+
+
+
+      </div>
     </div>
+    <div class="widget-box widget-plain" style="margin-top:12%">
+      <div class="center">
+        <h3 style="color:blue">Ventes</h3>
+        <hr />
 
-    <div class="cards">
-      <?php
-        $totalBrands = mysqli_num_rows(mysqli_query($con, "SELECT * FROM tblbrand WHERE Status='1'"));
-        $totalCategories = mysqli_num_rows(mysqli_query($con, "SELECT * FROM tblcategory WHERE Status='1'"));
-        $totalSubcategories = mysqli_num_rows(mysqli_query($con, "SELECT * FROM tblsubcategory WHERE Status='1'"));
-        $totalProducts = mysqli_num_rows(mysqli_query($con, "SELECT * FROM tblproducts"));
-      ?>
-      <div class="card">
-        <h3>Marques</h3>
-        <span class="highlight"><?php echo $totalBrands; ?></span>
-      </div>
-      <div class="card">
-        <h3>Catégories</h3>
-        <span class="highlight"><?php echo $totalCategories; ?></span>
-      </div>
-      <div class="card">
-        <h3>Sous-catégories</h3>
-        <span class="highlight"><?php echo $totalSubcategories; ?></span>
-      </div>
-      <div class="card">
-        <h3>Produits</h3>
-        <span class="highlight"><?php echo $totalProducts; ?></span>
-      </div>
-    </div>
+<ul class="site-stats">
 
-    <!-- Ventes -->
-    <div class="cards" style="margin-top: 40px;">
-      <?php
-        function getSales($condition) {
-          global $con;
-          $query = mysqli_query($con, "
-            SELECT ProductQty, tblproducts.Price
-            FROM tblcart 
-            JOIN tblproducts ON tblproducts.ID = tblcart.ProductId 
-            WHERE $condition AND IsCheckOut='1'
-          ");
-          $total = 0;
-          while ($r = mysqli_fetch_assoc($query)) {
-            $total += $r['ProductQty'] * $r['Price'];
-          }
-          return number_format($total, 2);
-        }
-      ?>
-      <div class="card">
-        <h3>Vente aujourd'hui</h3>
-        <span>$<?php echo getSales("DATE(CartDate) = CURDATE()"); ?></span>
-      </div>
-      <div class="card">
-        <h3>Vente hier</h3>
-        <span>$<?php echo getSales("DATE(CartDate) = CURDATE()-1"); ?></span>
-      </div>
-      <div class="card">
-        <h3>7 derniers jours</h3>
-        <span>$<?php echo getSales("DATE(CartDate) >= DATE(NOW()) - INTERVAL 7 DAY"); ?></span>
-      </div>
-      <div class="card">
-        <h3>Vente totale</h3>
-        <span>$<?php echo getSales("1=1"); ?></span>
+              <?php
+//vente d'aujourd'hui
+ $query6=mysqli_query($con,"select tblcart.ProductQty as ProductQty,tblproducts.Price
+ from tblcart 
+  join tblproducts  on tblproducts.ID=tblcart.ProductId where date(CartDate)=CURDATE() and IsCheckOut='1'");
+while($row=mysqli_fetch_array($query6))
+{
+$todays_sale=$row['ProductQty']*$row['Price'];
+$todysale+=$todays_sale;
+
+}
+ ?>
+    
+                <li class="bg_lh"><font style="font-size:22px; font-weight:bold">$</font><strong><?php echo number_format($todysale,2);?></strong> <small>Ventes d'aujourd'hui</small></li>
+           <?php
+//vente d'hier
+ $query7=mysqli_query($con,"select tblcart.ProductQty as ProductQty,tblproducts.Price
+ from tblcart 
+  join tblproducts  on tblproducts.ID=tblcart.ProductId where date(CartDate)=CURDATE()-1 and IsCheckOut='1'");
+while($row=mysqli_fetch_array($query7))
+{
+$yesterdays_sale=$row['ProductQty']*$row['Price'];
+$yesterdaysale+=$yesterdays_sale;
+
+}
+ ?>
+
+                <li class="bg_lh"><font style="font-size:22px; font-weight:bold">$</font> <strong><?php echo number_format($yesterdaysale,2);?></strong> <small>Ventes d'hier </small></li>
+
+            <?php
+//Vente des sept derniers jours
+ $query8=mysqli_query($con,"select tblcart.ProductQty as ProductQty,tblproducts.Price
+ from tblcart 
+  join tblproducts  on tblproducts.ID=tblcart.ProductId where date(tblcart.CartDate)>=(DATE(NOW()) - INTERVAL 7 DAY) and tblcart.IsCheckOut='1' ");
+while($row=mysqli_fetch_array($query8))
+{
+$sevendays_sale=$row['ProductQty']*$row['Price'];
+$tseven+=$sevendays_sale;
+}
+ ?>
+                <li class="bg_lh"><font style="font-size:22px; font-weight:bold">$</font> <strong><?php echo number_format($tseven,2);?></strong> <small>Ventes des sept derniers jours</small></li>
+            <?php
+//Vente totale
+ $query9=mysqli_query($con,"select tblcart.ProductQty as ProductQty,tblproducts.Price
+ from tblcart 
+  join tblproducts  on tblproducts.ID=tblcart.ProductId where  IsCheckOut='1' ");
+while($row=mysqli_fetch_array($query9))
+{
+$total_sale=$row['ProductQty']*$row['Price'];
+$totalsale+=$total_sale;
+}
+ ?>
+
+                <li class="bg_lh"><font style="font-size:22px; font-weight:bold">$</font> <strong><?php echo number_format($totalsale,2);?></strong> <small>Ventes totales</small></li>
+             
+              </ul>
+
+
       </div>
     </div>
   </div>
 </div>
+<?php include_once('includes/footer.php');?>
 
+<?php include_once('includes/js.php');?>
 </body>
 </html>
+<?php } ?>
