@@ -32,6 +32,7 @@ if (strlen($_SESSION['imsaid']==0)) {
   ?>
 <!DOCTYPE html>
 <html lang="fr">
+<?php include_once('includes/css_change.php');?>
 <head>
 <title>Système de gestion des stocks || Mettre à jour les produits</title>
 <?php include_once('includes/cs.php');?>

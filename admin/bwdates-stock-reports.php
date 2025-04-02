@@ -15,6 +15,7 @@ $tdate = isset($_POST['todate']) ? mysqli_real_escape_string($con, $_POST['todat
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+<?php include_once('includes/css_change.php');?>
 <head>
   <title>Système de Gestion des Inventaires || Rapport entre deux dates</title>
   <?php include_once('includes/cs.php'); ?>

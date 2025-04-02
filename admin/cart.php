@@ -140,6 +140,7 @@ if (isset($_POST['submit'])) {
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+<?php include_once('includes/css_change.php');?>
 <head>
   <title>Système de gestion des stocks | Panier</title>
   <?php include_once('includes/cs.php'); ?>

@@ -1,12 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
-<style>
-    .control-label {
-      font-size: 20px;
-      font-weight: bolder;
-      color: black;  
-    }
-  </style>
+<?php include_once('includes/css_change.php');?>
 <head>
 <title>Système de Gestion des Inventaires || Ajouter une Sous-Catégorie</title>
 <?php include_once('includes/cs.php');
