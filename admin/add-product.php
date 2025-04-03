@@ -48,7 +48,7 @@ if (isset($_POST['submit'])) {
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <title>Système de Gestion des Stock || Ajouter des Produits</title>
+    <title>Système de Gestion des Stocks || Ajouter des Produits</title>
     <?php include_once('includes/cs.php'); ?>
 
     <!-- jQuery (si pas déjà inclus) -->
