@@ -47,7 +47,6 @@ if (isset($_POST['submit'])) {
 ?>
 <!DOCTYPE html>
 <html lang="fr">
-<?php include_once('includes/css_change.php');?>
 <head>
     <title>Système de Gestion des Stocks || Ajouter des Produits</title>
     <?php include_once('includes/cs.php'); ?>

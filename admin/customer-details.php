@@ -50,7 +50,6 @@ if (isset($_POST['addPayment'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
-<?php include_once('includes/css_change.php');?>
 <head>
     <title>Inventory Management System | Customer Details</title>
     <?php include_once('includes/cs.php'); ?>

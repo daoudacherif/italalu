@@ -186,7 +186,6 @@ if ($export === 'excel') {
 ?>
 <!DOCTYPE html>
 <html lang="fr">
-<?php include_once('includes/css_change.php');?>
 <head>
   <title>Rapport global</title>
   <?php include_once('includes/cs.php'); ?>

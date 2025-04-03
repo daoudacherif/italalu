@@ -23,7 +23,6 @@ $res = mysqli_query($con, $sql);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
-<?php include_once('includes/css_change.php');?>
 <head>
   <title>Détails du Compte Client</title>
   <?php include_once('includes/cs.php'); ?>

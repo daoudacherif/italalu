@@ -165,7 +165,6 @@ if (isset($_POST['submit'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
-<?php include_once('includes/css_change.php');?>
 <head>
   <title>Système de Gestion d'Inventaire | Panier</title>
   <!-- Vos includes CSS/JS -->

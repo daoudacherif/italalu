@@ -26,7 +26,6 @@ if (strlen($_SESSION['imsaid']==0)) {
   ?>
 <!DOCTYPE html>
 <html lang="fr">
-<?php include_once('includes/css_change.php');?>
 <head>
 <title>Système de gestion d'inventaire || Mettre à jour la marque</title>
 <?php include_once('includes/cs.php');?>

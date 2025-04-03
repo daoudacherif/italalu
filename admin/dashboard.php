@@ -11,7 +11,6 @@ if (strlen($_SESSION['imsaid']==0)) {
   ?>
 <!DOCTYPE html>
 <html lang="fr">
-<?php include_once('includes/css_change.php');?>
 <head>
 <title>Système de Gestion d'Inventaire || Tableau de Bord</title>
 
