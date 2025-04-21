@@ -1,7 +1,20 @@
   <!-- Optionally include additional responsive overrides -->
   <style>
     /* Example: Orientation overlay to prompt users to rotate device */
-   
+    #rotate-overlay {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      text-align: center;
+      padding-top: 40%;
+      font-size: 18px;
+    }
     /* Show overlay when device is in portrait */
     @media screen and (orientation: portrait) {
       #rotate-overlay {
@@ -24,7 +37,6 @@
     .control-label { 
   font-weight: bold;
   font-size: 20px;
-  color:black;
 }
 
     /* The rest of your responsive CSS code (as provided in the previous integration)
